@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Presentaciones SAT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --rojo:#E30613;
+    --rojo-oscuro:#a80410;
+    --carbon:#22262b;
+    --gris-oscuro:#4a4f57;
+    --gris:#6b7280;
+    --gris-claro:#e5e7eb;
+    --fondo:#f4f5f7;
+    --blanco:#ffffff;
+    --verde:#1a8f4c;
+    --ambar:#b7791f;
+    --sombra:0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0;
+    background:var(--fondo);
+    color:var(--carbon);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  header{
+    background:var(--carbon);
+    color:#fff;
+    padding:18px 20px;
+    display:flex; align-items:center; gap:12px;
+    position:sticky; top:0; z-index:20;
+  }
+  header .barra{width:6px; height:32px; background:var(--rojo); border-radius:3px; flex-shrink:0;}
+  header h1{font-size:17px; margin:0; font-weight:700; letter-spacing:.2px;}
+  header p{margin:2px 0 0; font-size:12px; color:#c9ccd1;}
+
+  nav.tabs{
+    display:flex; background:#fff; border-bottom:1px solid var(--gris-claro);
+    position:sticky; top:68px; z-index:19;
+  }
+  nav.tabs button{
+    flex:1; padding:13px 8px; border:none; background:transparent; cursor:pointer;
+    font-size:13.5px; font-weight:600; color:var(--gris); border-bottom:3px solid transparent;
+  }
+  nav.tabs button.activo{color:var(--rojo); border-bottom-color:var(--rojo);}
+
+  main{max-width:920px; margin:0 auto; padding:16px 14px 60px;}
+  section.vista{display:none;}
+  section.vista.activa{display:block;}
+
+  .tarjeta{
+    background:#fff; border-radius:10px; box-shadow:var(--sombra);
+    padding:18px; margin-bottom:16px;
+  }
+  .tarjeta h2{font-size:15px; margin:0 0 14px; color:var(--carbon);}
+
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px 14px;}
+  @media (max-width:600px){ .grid{grid-template-columns:1fr;} }
+  .campo{display:flex; flex-direction:column; gap:5px;}
+  .campo.full{grid-column:1/-1;}
+  .campo label{font-size:12px; font-weight:600; color:var(--gris-oscuro);}
+  .campo label .req{color:var(--rojo);}
+  .campo input, .campo select, .campo textarea{
+    border:1px solid var(--gris-claro); border-radius:7px; padding:9px 10px;
+    font-size:14px; font-family:inherit; background:#fff; color:var(--carbon);
+  }
+  .campo input:focus, .campo select:focus, .campo textarea:focus{
+    outline:none; border-color:var(--rojo);
+  }
+  .campo textarea{resize:vertical; min-height:60px;}
+
+  .btn{
+    border:none; border-radius:8px; padding:11px 18px; font-size:14px; font-weight:700;
+    cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primario{background:var(--rojo); color:#fff;}
+  .btn-primario:hover{background:var(--rojo-oscuro);}
+  .btn-secundario{background:#fff; color:var(--carbon); border:1px solid var(--gris-claro);}
+  .btn-secundario:hover{background:var(--fondo);}
+  .btn:disabled{opacity:.55; cursor:not-allowed;}
+  .btn-fila{display:flex; justify-content:flex-end; gap:10px; margin-top:16px;}
+
+  .mensaje{
+    border-radius:8px; padding:11px 14px; font-size:13.5px; margin-bottom:14px; display:none;
+  }
+  .mensaje.ok{background:#e7f7ee; color:var(--verde); display:block;}
+  .mensaje.error{background:#fdecec; color:var(--rojo-oscuro); display:block;}
+
+  .barra-herramientas{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;
+  }
+  .barra-herramientas input[type=text]{
+    flex:1; min-width:180px; border:1px solid var(--gris-claro); border-radius:7px;
+    padding:9px 12px; font-size:14px;
+  }
+  .filtros{display:flex; gap:6px;}
+  .filtros button{
+    border:1px solid var(--gris-claro); background:#fff; border-radius:20px;
+    padding:7px 14px; font-size:12.5px; font-weight:600; color:var(--gris-oscuro); cursor:pointer;
+  }
+  .filtros button.activo{background:var(--carbon); color:#fff; border-color:var(--carbon);}
+
+  .item{
+    background:#fff; border-radius:10px; box-shadow:var(--sombra);
+    padding:14px 16px; margin-bottom:10px; cursor:pointer;
+  }
+  .item-cabecera{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .item-id{font-weight:700; font-size:14px;}
+  .item-sub{font-size:12.5px; color:var(--gris); margin-top:3px;}
+  .badge{
+    font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;
+  }
+  .badge.pendiente{background:#fdf3e3; color:var(--ambar);}
+  .badge.cerrada{background:#e7f7ee; color:var(--verde);}
+
+  .detalle{
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--gris-claro);
+    display:none; font-size:13.5px;
+  }
+  .detalle.abierto{display:block;}
+  .detalle dl{display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; margin:0 0 12px;}
+  @media (max-width:600px){ .detalle dl{grid-template-columns:1fr;} }
+  .detalle dt{font-weight:600; color:var(--gris-oscuro); font-size:11.5px; text-transform:uppercase; letter-spacing:.3px;}
+  .detalle dd{margin:2px 0 0; color:var(--carbon);}
+
+  .vacio{text-align:center; color:var(--gris); padding:40px 10px; font-size:13.5px;}
+  .cargando{text-align:center; color:var(--gris); padding:30px 10px; font-size:13.5px;}
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,20,22,.55); display:none;
+    align-items:flex-start; justify-content:center; padding:30px 14px; overflow-y:auto; z-index:50;
+  }
+  .overlay.activo{display:flex;}
+  .modal{
+    background:#fff; border-radius:12px; padding:20px; width:100%; max-width:520px;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);
+  }
+  .modal h3{margin:0 0 4px; font-size:16px;}
+  .modal .sub{font-size:12.5px; color:var(--gris); margin:0 0 16px;}
+  .modal .grid{margin-bottom:4px;}
+
+  footer{text-align:center; font-size:11.5px; color:var(--gris); padding:20px 10px 30px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="barra"></div>
+  <div>
+    <h1>Gestión de Presentaciones SAT</h1>
+    <p>Solicitudes de apoyo en terreno · registro en SharePoint</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button id="tabCrearBtn" class="activo" onclick="cambiarVista('crear')">Nueva presentación</button>
+  <button id="tabListaBtn" onclick="cambiarVista('lista')">Seguimiento</button>
+</nav>
+
+<main>
+
+  <!-- ===================== VISTA: NUEVA PRESENTACIÓN ===================== -->
+  <section id="vistaCrear" class="vista activa">
+    <div class="tarjeta">
+      <h2>Datos de la presentación</h2>
+      <div id="mensajeCrear" class="mensaje"></div>
+      <form id="formCrear" onsubmit="return enviarCreacion(event)">
+        <div class="grid">
+          <div class="campo">
+            <label>Área solicitante <span class="req">*</span></label>
+            <input type="text" name="areaSolicitante" required placeholder="Ej: Comercial">
+          </div>
+          <div class="campo">
+            <label>Identificador <span class="req">*</span></label>
+            <input type="text" name="identificador" required>
+          </div>
+          <div class="campo">
+            <label>Producto</label>
+            <input type="text" name="producto">
+          </div>
+          <div class="campo">
+            <label>Prioridad</label>
+            <input type="text" name="prioridad" placeholder="Ej: Alta / Media / Baja">
+          </div>
+          <div class="campo full">
+            <label>Ubicación geográfica</label>
+            <input type="text" name="ubicacionGeografica">
+          </div>
+          <div class="campo full">
+            <label>Detalle dirección</label>
+            <input type="text" name="detalleDireccion">
+          </div>
+          <div class="campo">
+            <label>Nombre suscriptor <span class="req">*</span></label>
+            <input type="text" name="nombreSuscriptor" required>
+          </div>
+          <div class="campo">
+            <label>Apellido suscriptor <span class="req">*</span></label>
+            <input type="text" name="apellidoSuscriptor" required>
+          </div>
+          <div class="campo">
+            <label>Teléfono cliente</label>
+            <input type="text" name="telefonoCliente" inputmode="tel">
+          </div>
+          <div class="campo">
+            <label>Responsable <span class="req">*</span></label>
+            <input type="text" name="responsable" required>
+          </div>
+          <div class="campo">
+            <label>Alimentador</label>
+            <input type="text" name="alimentador">
+          </div>
+          <div class="campo">
+            <label>Punto eléctrico</label>
+            <input type="text" name="puntoElectrico">
+          </div>
+          <div class="campo">
+            <label>Fecha de ingreso</label>
+            <input type="date" name="fechaIngreso">
+          </div>
+          <div class="campo">
+            <label>Fecha máx. respuesta</label>
+            <input type="date" name="fechaMaxRespuesta">
+          </div>
+          <div class="campo full">
+            <label>Gestión despacho</label>
+            <input type="text" name="gestionDespacho">
+          </div>
+          <div class="campo full">
+            <label>Trabajo a realizar SAT <span class="req">*</span></label>
+            <textarea name="trabajoARealizarSAT" required></textarea>
+          </div>
+          <div class="campo full">
+            <label>Comentario</label>
+            <textarea name="comentario"></textarea>
+          </div>
+        </div>
+        <div class="btn-fila">
+          <button type="reset" class="btn btn-secundario">Limpiar</button>
+          <button type="submit" id="btnCrear" class="btn btn-primario">Guardar presentación</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== VISTA: SEGUIMIENTO / LISTADO ===================== -->
+  <section id="vistaLista" class="vista">
+    <div class="barra-herramientas">
+      <input type="text" id="buscador" placeholder="Buscar por identificador, suscriptor, producto o área..." oninput="renderLista()">
+      <div class="filtros">
+        <button class="activo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
+        <button data-filtro="Pendiente" onclick="setFiltro('Pendiente')">Pendientes</button>
+        <button data-filtro="Cerrada" onclick="setFiltro('Cerrada')">Cerradas</button>
+      </div>
+      <button class="btn btn-secundario" onclick="cargarLista()">Actualizar</button>
+      <button class="btn btn-secundario" onclick="exportarExcel()">Exportar a Excel</button>
+    </div>
+    <div id="mensajeLista" class="mensaje"></div>
+    <div id="contenedorLista"></div>
+  </section>
+
+</main>
+
+<!-- ===================== MODAL: CERRAR TAREA ===================== -->
+<div class="overlay" id="overlayCierre">
+  <div class="modal">
+    <h3>Cerrar presentación</h3>
+    <p class="sub" id="cierreSubtitulo">Solo supervisor / administración.</p>
+    <div id="mensajeCierre" class="mensaje"></div>
+    <form id="formCierre" onsubmit="return enviarCierre(event)">
+      <div class="grid">
+        <div class="campo">
+          <label>Poweron</label>
+          <input type="text" name="poweron">
+        </div>
+        <div class="campo">
+          <label>Ejecutado SI/NO</label>
+          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO">
+        </div>
+        <div class="campo">
+          <label>Fecha trabajo</label>
+          <input type="date" name="fechaTrabajo">
+        </div>
+        <div class="campo">
+          <label>APP</label>
+          <input type="text" name="app">
+        </div>
+        <div class="campo full">
+          <label>Probatorias</label>
+          <input type="text" name="probatorias">
+        </div>
+        <div class="campo full">
+          <label>Observaciones</label>
+          <textarea name="observaciones"></textarea>
+        </div>
+        <div class="campo full">
+          <label>Contraseña de cierre <span class="req">*</span></label>
+          <input type="password" name="clave" required>
+        </div>
+      </div>
+      <div class="btn-fila">
+        <button type="button" class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+        <button type="submit" id="btnCerrarTarea" class="btn btn-primario">Confirmar cierre</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>Gestión de Presentaciones SAT · Chilquinta</footer>
+
+<script>
+  // =====================================================================
+  //  CONFIGURACIÓN — reemplaza estas dos URLs por las de tus flujos
+  //  de Power Automate (ver guía "guia-presentaciones-sat.md").
+  // =====================================================================
+  const CONFIG = {
+    urlLeer:     'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/bebfc6bc7ca94370a53f15f36377c07d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GXKf0aXMlRWa7MXDSfqx49RBImVWgHnXdWu5L-uPqQo',
+    urlEscribir: 'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/16d84d9d330f4109beb5278e0eda65e7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8Iy-8hobHTY5Dl_a0VRRB35oe9r-XAlXFyY4UEUzoMU'
+  };
+
+  let datosLista = [];      // último listado traído del flujo de lectura
+  let filtroEstado = 'todas';
+  let idEnCierre = null;    // ID de SharePoint del registro que se está cerrando
+
+  // --------------------- Navegación entre pestañas ---------------------
+  function cambiarVista(vista){
+    document.getElementById('vistaCrear').classList.toggle('activa', vista === 'crear');
+    document.getElementById('vistaLista').classList.toggle('activa', vista === 'lista');
+    document.getElementById('tabCrearBtn').classList.toggle('activo', vista === 'crear');
+    document.getElementById('tabListaBtn').classList.toggle('activo', vista === 'lista');
+    if (vista === 'lista' && datosLista.length === 0){
+      cargarLista();
+    }
+  }
+
+  function mostrarMensaje(idEl, texto, tipo){
+    const el = document.getElementById(idEl);
+    el.textContent = texto;
+    el.className = 'mensaje ' + tipo;
+    if (tipo === 'ok'){
+      setTimeout(() => { el.className = 'mensaje'; }, 4000);
+    }
+  }
+
+  function urlConfigurada(url){
+    return url && !url.startsWith('PEGA_AQUI');
+  }
+
+  // --------------------- Crear presentación ---------------------
+  async function enviarCreacion(evento){
+    evento.preventDefault();
+    if (!urlConfigurada(CONFIG.urlEscribir)){
+      mostrarMensaje('mensajeCrear', 'Falta configurar la URL del flujo de escritura (CONFIG.urlEscribir) en el HTML.', 'error');
+      return false;
+    }
+    const form = document.getElementById('formCrear');
+    const datos = Object.fromEntries(new FormData(form).entries());
+    datos.accion = 'crear';
+
+    const boton = document.getElementById('btnCrear');
+    boton.disabled = true; boton.textContent = 'Guardando...';
+    try {
+      const resp = await fetch(CONFIG.urlEscribir, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(datos)
+      });
+      const resultado = await resp.json().catch(() => ({}));
+      if (resp.ok && resultado.resultado !== 'error'){
+        mostrarMensaje('mensajeCrear', 'Presentación guardada correctamente.', 'ok');
+        form.reset();
+        datosLista = []; // fuerza recarga la próxima vez que se abra el listado
+      } else {
+        mostrarMensaje('mensajeCrear', resultado.mensaje || 'No se pudo guardar la presentación.', 'error');
+      }
+    } catch (err) {
+      mostrarMensaje('mensajeCrear', 'Error de conexión con el flujo. Revisa la URL y el CORS del flujo de escritura.', 'error');
+    } finally {
+      boton.disabled = false; boton.textContent = 'Guardar presentación';
+    }
+    return false;
+  }
+
+  // --------------------- Listado / seguimiento ---------------------
+  async function cargarLista(){
+    if (!urlConfigurada(CONFIG.urlLeer)){
+      mostrarMensaje('mensajeLista', 'Falta configurar la URL del flujo de lectura (CONFIG.urlLeer) en el HTML.', 'error');
+      document.getElementById('contenedorLista').innerHTML = '';
+      return;
+    }
+    document.getElementById('contenedorLista').innerHTML = '<div class="cargando">Cargando presentaciones...</div>';
+    try {
+      const resp = await fetch(CONFIG.urlLeer, { method: 'POST' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      datosLista = Array.isArray(data) ? data : (data.value || []);
+      renderLista();
+    } catch (err) {
+      mostrarMensaje('mensajeLista', 'No se pudo cargar el listado. Revisa la URL y el CORS del flujo de lectura.', 'error');
+      document.getElementById('contenedorLista').innerHTML = '';
+    }
+  }
+
+  function setFiltro(valor){
+    filtroEstado = valor;
+    document.querySelectorAll('.filtros button').forEach(b => {
+      b.classList.toggle('activo', b.dataset.filtro === valor);
+    });
+    renderLista();
+  }
+
+  function filasFiltradas(){
+    const texto = document.getElementById('buscador').value.trim().toLowerCase();
+    return datosLista.filter(item => {
+      if (filtroEstado !== 'todas' && (item.estado || 'Pendiente') !== filtroEstado) return false;
+      if (!texto) return true;
+      const campos = [item.identificador, item.producto, item.nombreSuscriptor, item.apellidoSuscriptor, item.areaSolicitante];
+      return campos.some(c => (c || '').toString().toLowerCase().includes(texto));
+    });
+  }
+
+  function renderLista(){
+    const contenedor = document.getElementById('contenedorLista');
+    const filas = filasFiltradas();
+
+    if (filas.length === 0){
+      contenedor.innerHTML = '<div class="vacio">No hay presentaciones que coincidan con el filtro.</div>';
+      return;
+    }
+
+    contenedor.innerHTML = filas.map((item, i) => tarjetaItem(item, i)).join('');
+  }
+
+  // --------------------- Exportar a Excel (CSV) ---------------------
+  const COLUMNAS_EXPORTAR = [
+    ['identificador', 'Identificador'], ['estado', 'Estado'], ['areaSolicitante', 'Área solicitante'],
+    ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'],
+    ['nombreSuscriptor', 'Nombre suscriptor'], ['apellidoSuscriptor', 'Apellido suscriptor'], ['telefonoCliente', 'Teléfono cliente'],
+    ['responsable', 'Responsable'], ['alimentador', 'Alimentador'], ['puntoElectrico', 'Punto eléctrico'],
+    ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
+    ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['comentario', 'Comentario'],
+    ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
+    ['app', 'APP'], ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones']
+  ];
+
+  function exportarExcel(){
+    if (typeof XLSX === 'undefined'){
+      mostrarMensaje('mensajeLista', 'No se pudo cargar la librería de Excel (revisa tu conexión a internet e intenta de nuevo).', 'error');
+      return;
+    }
+    const filas = filasFiltradas();
+    if (filas.length === 0){
+      mostrarMensaje('mensajeLista', 'No hay presentaciones para exportar con el filtro/búsqueda actual.', 'error');
+      return;
+    }
+
+    const encabezados = COLUMNAS_EXPORTAR.map(c => c[1]);
+    const datosHoja = [encabezados];
+    filas.forEach(item => {
+      datosHoja.push(COLUMNAS_EXPORTAR.map(c => {
+        const v = item[c[0]];
+        return (v === undefined || v === null) ? '' : v;
+      }));
+    });
+
+    const hoja = XLSX.utils.aoa_to_sheet(datosHoja);
+    hoja['!cols'] = COLUMNAS_EXPORTAR.map(() => ({ wch: 20 }));
+
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, 'Presentaciones');
+
+    const fecha = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(libro, `presentaciones-sat_${fecha}.xlsx`);
+  }
+
+  function tarjetaItem(item, indice){
+    const estado = item.estado || 'Pendiente';
+    const esCerrada = estado === 'Cerrada';
+    const claseBadge = esCerrada ? 'cerrada' : 'pendiente';
+    const idUnico = 'item_' + indice;
+
+    const filasDetalle = [
+      ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
+      ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion],
+      ['Nombre suscriptor', item.nombreSuscriptor], ['Apellido suscriptor', item.apellidoSuscriptor],
+      ['Teléfono cliente', item.telefonoCliente], ['Responsable', item.responsable],
+      ['Alimentador', item.alimentador], ['Punto eléctrico', item.puntoElectrico],
+      ['Fecha de ingreso', item.fechaIngreso], ['Fecha máx. respuesta', item.fechaMaxRespuesta],
+      ['Prioridad', item.prioridad], ['Gestión despacho', item.gestionDespacho],
+      ['Trabajo a realizar SAT', item.trabajoARealizarSAT], ['Comentario', item.comentario]
+    ];
+
+    let bloqueCierre = '';
+    if (esCerrada){
+      bloqueCierre = [
+        ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
+        ['Fecha trabajo', item.fechaTrabajo], ['APP', item.app],
+        ['Probatorias', item.probatorias], ['Observaciones', item.observaciones]
+      ].map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
+    }
+
+    const dl = filasDetalle.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
+
+    const botonCerrar = esCerrada ? '' :
+      `<button class="btn btn-primario" style="margin-top:10px" onclick="abrirCierre(event, ${JSON.stringify(item.id)})">Cerrar tarea</button>`;
+
+    return `
+      <div class="item">
+        <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
+          <div>
+            <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(item.producto)}</div>
+            <div class="item-sub">${valorODefecto(item.nombreSuscriptor)} ${valorODefecto(item.apellidoSuscriptor, '')} · ${valorODefecto(item.areaSolicitante)}</div>
+          </div>
+          <span class="badge ${claseBadge}">${estado}</span>
+        </div>
+        <div class="detalle" id="${idUnico}">
+          <dl>${dl}${bloqueCierre}</dl>
+          ${botonCerrar}
+        </div>
+      </div>`;
+  }
+
+  function valorODefecto(v, porDefecto){
+    if (v === undefined || v === null || v === '') return (porDefecto !== undefined ? porDefecto : '—');
+    return v;
+  }
+
+  function toggleDetalle(id){
+    document.getElementById(id).classList.toggle('abierto');
+  }
+
+  // --------------------- Cierre de tarea ---------------------
+  function abrirCierre(evento, id){
+    evento.stopPropagation();
+    idEnCierre = id;
+    document.getElementById('formCierre').reset();
+    document.getElementById('mensajeCierre').className = 'mensaje';
+    document.getElementById('overlayCierre').classList.add('activo');
+  }
+
+  function cerrarModal(){
+    document.getElementById('overlayCierre').classList.remove('activo');
+    idEnCierre = null;
+  }
+
+  async function enviarCierre(evento){
+    evento.preventDefault();
+    if (!urlConfigurada(CONFIG.urlEscribir)){
+      mostrarMensaje('mensajeCierre', 'Falta configurar la URL del flujo de escritura (CONFIG.urlEscribir) en el HTML.', 'error');
+      return false;
+    }
+    const form = document.getElementById('formCierre');
+    const datos = Object.fromEntries(new FormData(form).entries());
+    datos.accion = 'cerrar';
+    datos.idRegistro = idEnCierre;
+
+    const boton = document.getElementById('btnCerrarTarea');
+    boton.disabled = true; boton.textContent = 'Cerrando...';
+    try {
+      const resp = await fetch(CONFIG.urlEscribir, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(datos)
+      });
+      const resultado = await resp.json().catch(() => ({}));
+      if (resp.ok && resultado.resultado !== 'error'){
+        cerrarModal();
+        mostrarMensaje('mensajeLista', 'Presentación cerrada correctamente.', 'ok');
+        cargarLista();
+      } else {
+        mostrarMensaje('mensajeCierre', resultado.mensaje || 'Contraseña incorrecta o error al cerrar.', 'error');
+      }
+    } catch (err) {
+      mostrarMensaje('mensajeCierre', 'Error de conexión con el flujo. Revisa la URL y el CORS del flujo de escritura.', 'error');
+    } finally {
+      boton.disabled = false; boton.textContent = 'Confirmar cierre';
+    }
+    return false;
+  }
+</script>
+</body>
+</html>
