@@ -385,6 +385,20 @@
   }
 
   // --------------------- Listado / seguimiento ---------------------
+  function textoPlano(valor){
+    // Algunos flujos entregan campos de tipo Opción (Choice) como objeto
+    // en vez de texto simple (ej. {Value:"Pendiente"}). Esto lo deja siempre como texto.
+    if (valor === undefined || valor === null) return valor;
+    if (typeof valor === 'object'){
+      return valor.Value ?? valor.value ?? '';
+    }
+    return valor;
+  }
+
+  function normalizarItem(item){
+    return { ...item, estado: textoPlano(item.estado) };
+  }
+
   async function cargarLista(){
     if (!urlConfigurada(CONFIG.urlLeer)){
       mostrarMensaje('mensajeLista', 'Falta configurar la URL del flujo de lectura (CONFIG.urlLeer) en el HTML.', 'error');
@@ -396,7 +410,8 @@
       const resp = await fetch(CONFIG.urlLeer, { method: 'POST' });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const data = await resp.json();
-      datosLista = Array.isArray(data) ? data : (data.value || []);
+      const crudos = Array.isArray(data) ? data : (data.value || []);
+      datosLista = crudos.map(normalizarItem);
       renderLista();
     } catch (err) {
       mostrarMensaje('mensajeLista', 'No se pudo cargar el listado. Revisa la URL y el CORS del flujo de lectura.', 'error');
