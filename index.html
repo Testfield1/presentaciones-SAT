@@ -96,6 +96,10 @@
     flex:1; min-width:180px; border:1px solid var(--gris-claro); border-radius:7px;
     padding:9px 12px; font-size:14px;
   }
+  .barra-herramientas select{
+    border:1px solid var(--gris-claro); border-radius:7px;
+    padding:9px 10px; font-size:13.5px; background:#fff; color:var(--carbon);
+  }
   .filtros{display:flex; gap:6px;}
   .filtros button{
     border:1px solid var(--gris-claro); background:#fff; border-radius:20px;
@@ -178,6 +182,18 @@
             <input type="text" name="identificador" required>
           </div>
           <div class="campo">
+            <label>Zona <span class="req">*</span></label>
+            <select name="zona" required>
+              <option value="" disabled selected>Selecciona una zona</option>
+              <option value="Aconcagua">Aconcagua</option>
+              <option value="Quillota">Quillota</option>
+              <option value="San Antonio">San Antonio</option>
+              <option value="Valparaíso">Valparaíso</option>
+              <option value="Costa">Costa</option>
+              <option value="Marga Marga">Marga Marga</option>
+            </select>
+          </div>
+          <div class="campo">
             <label>Producto</label>
             <input type="text" name="producto">
           </div>
@@ -207,7 +223,12 @@
           </div>
           <div class="campo">
             <label>Responsable <span class="req">*</span></label>
-            <input type="text" name="responsable" required>
+            <select name="responsable" required>
+              <option value="" disabled selected>Selecciona un responsable</option>
+              <option value="René Catalán">René Catalán</option>
+              <option value="Claudio Silva">Claudio Silva</option>
+              <option value="Viviana Zamora">Viviana Zamora</option>
+            </select>
           </div>
           <div class="campo">
             <label>Alimentador</label>
@@ -255,6 +276,15 @@
         <button data-filtro="Pendiente" onclick="setFiltro('Pendiente')">Pendientes</button>
         <button data-filtro="Cerrada" onclick="setFiltro('Cerrada')">Cerradas</button>
       </div>
+      <select id="filtroZona" onchange="renderLista()">
+        <option value="todas">Todas las zonas</option>
+        <option value="Aconcagua">Aconcagua</option>
+        <option value="Quillota">Quillota</option>
+        <option value="San Antonio">San Antonio</option>
+        <option value="Valparaíso">Valparaíso</option>
+        <option value="Costa">Costa</option>
+        <option value="Marga Marga">Marga Marga</option>
+      </select>
       <button class="btn btn-secundario" onclick="cargarLista()">Actualizar</button>
       <button class="btn btn-secundario" onclick="exportarExcel()">Exportar a Excel</button>
     </div>
@@ -429,8 +459,10 @@
 
   function filasFiltradas(){
     const texto = document.getElementById('buscador').value.trim().toLowerCase();
+    const zona = document.getElementById('filtroZona').value;
     return datosLista.filter(item => {
       if (filtroEstado !== 'todas' && (item.estado || 'Pendiente') !== filtroEstado) return false;
+      if (zona !== 'todas' && item.zona !== zona) return false;
       if (!texto) return true;
       const campos = [item.identificador, item.producto, item.nombreSuscriptor, item.apellidoSuscriptor, item.areaSolicitante];
       return campos.some(c => (c || '').toString().toLowerCase().includes(texto));
@@ -451,7 +483,7 @@
 
   // --------------------- Exportar a Excel (CSV) ---------------------
   const COLUMNAS_EXPORTAR = [
-    ['identificador', 'Identificador'], ['estado', 'Estado'], ['areaSolicitante', 'Área solicitante'],
+    ['identificador', 'Identificador'], ['estado', 'Estado'], ['zona', 'Zona'], ['areaSolicitante', 'Área solicitante'],
     ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'],
     ['nombreSuscriptor', 'Nombre suscriptor'], ['apellidoSuscriptor', 'Apellido suscriptor'], ['telefonoCliente', 'Teléfono cliente'],
     ['responsable', 'Responsable'], ['alimentador', 'Alimentador'], ['puntoElectrico', 'Punto eléctrico'],
@@ -498,7 +530,7 @@
     const idUnico = 'item_' + indice;
 
     const filasDetalle = [
-      ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
+      ['Zona', item.zona], ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
       ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion],
       ['Nombre suscriptor', item.nombreSuscriptor], ['Apellido suscriptor', item.apellidoSuscriptor],
       ['Teléfono cliente', item.telefonoCliente], ['Responsable', item.responsable],
@@ -527,7 +559,7 @@
         <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
           <div>
             <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(item.producto)}</div>
-            <div class="item-sub">${valorODefecto(item.nombreSuscriptor)} ${valorODefecto(item.apellidoSuscriptor, '')} · ${valorODefecto(item.areaSolicitante)}</div>
+            <div class="item-sub">${valorODefecto(item.nombreSuscriptor)} ${valorODefecto(item.apellidoSuscriptor, '')} · ${valorODefecto(item.areaSolicitante)} · ${valorODefecto(item.zona)}</div>
           </div>
           <span class="badge ${claseBadge}">${estado}</span>
         </div>
