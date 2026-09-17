@@ -177,7 +177,12 @@
         <div class="grid">
           <div class="campo">
             <label>Área solicitante <span class="req">*</span></label>
-            <input type="text" name="areaSolicitante" required placeholder="Ej: Comercial">
+            <select name="areaSolicitante" required>
+              <option value="" disabled selected>Selecciona un área</option>
+              <option value="Mantenimiento">Mantenimiento</option>
+              <option value="Manejo de vegetación">Manejo de vegetación</option>
+              <option value="Empalme">Empalme</option>
+            </select>
           </div>
           <div class="campo">
             <label>Identificador <span class="req">*</span></label>
