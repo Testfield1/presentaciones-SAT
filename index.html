@@ -609,6 +609,14 @@
     XLSX.writeFile(libro, `presentaciones-sat_${fecha}.xlsx`);
   }
 
+  // --------------------- Adjuntos de SharePoint (fotos de respaldo al crear) ---------------------
+  const SITIO_SHAREPOINT = 'https://chilquintacl.sharepoint.com/sites/EncargadosSAT2025';
+  const LISTA_SHAREPOINT = 'Presentaciones SAT';
+
+  function urlAdjuntoSharePoint(item, nombreArchivo){
+    return `${SITIO_SHAREPOINT}/Lists/${encodeURIComponent(LISTA_SHAREPOINT)}/Attachments/${item.id}/${encodeURIComponent(nombreArchivo)}`;
+  }
+
   function tarjetaItem(item, indice){
     const estado = item.estado || 'Pendiente';
     const esCerrada = estado === 'Cerrada';
@@ -641,7 +649,14 @@
       bloqueCierre = filasCierre.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
     }
 
-    const dl = filasDetalle.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
+    let bloqueFotosSolicitud = '';
+    if (item.responsable === 'Claudio Silva' && item.identificador){
+      const urlFoto1 = urlAdjuntoSharePoint(item, `fotoSolicitud1_${item.identificador}.jpg`);
+      const urlFoto2 = urlAdjuntoSharePoint(item, `fotoSolicitud2_${item.identificador}.jpg`);
+      bloqueFotosSolicitud = `<dt>Fotos de respaldo (poda)</dt><dd><a href="${urlFoto1}" target="_blank" rel="noopener">Ver foto 1</a> &nbsp;|&nbsp; <a href="${urlFoto2}" target="_blank" rel="noopener">Ver foto 2</a></dd>`;
+    }
+
+    const dl = filasDetalle.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('') + bloqueFotosSolicitud;
 
     const botonCerrar = esCerrada ? '' :
       `<button class="btn btn-primario" style="margin-top:10px" onclick="abrirCierre(event, ${JSON.stringify(item.id)})">Actualizar estado / cerrar</button>`;
