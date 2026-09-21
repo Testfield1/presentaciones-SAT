@@ -16,6 +16,7 @@
     --fondo:#f4f5f7;
     --blanco:#ffffff;
     --verde:#1a8f4c;
+    --azul:#1d4ed8;
     --ambar:#b7791f;
     --sombra:0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
   }
@@ -118,6 +119,7 @@
     font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;
   }
   .badge.pendiente{background:#fdf3e3; color:var(--ambar);}
+  .badge.atencion{background:#e0edff; color:var(--azul);}
   .badge.cerrada{background:#e7f7ee; color:var(--verde);}
 
   .detalle{
@@ -201,20 +203,20 @@
             </select>
           </div>
           <div class="campo">
-            <label>Producto</label>
-            <input type="text" name="producto">
+            <label>Producto <span class="req">*</span></label>
+            <input type="text" name="producto" required>
           </div>
           <div class="campo">
-            <label>Prioridad</label>
-            <input type="text" name="prioridad" placeholder="Ej: Alta / Media / Baja">
+            <label>Prioridad <span class="req">*</span></label>
+            <input type="text" name="prioridad" placeholder="Ej: Alta / Media / Baja" required>
           </div>
           <div class="campo full">
-            <label>Ubicación geográfica</label>
-            <input type="text" name="ubicacionGeografica">
+            <label>Ubicación geográfica <span class="req">*</span></label>
+            <input type="text" name="ubicacionGeografica" required>
           </div>
           <div class="campo full">
-            <label>Detalle dirección</label>
-            <input type="text" name="detalleDireccion">
+            <label>Detalle dirección <span class="req">*</span></label>
+            <input type="text" name="detalleDireccion" required>
           </div>
           <div class="campo">
             <label>Nombre suscriptor <span class="req">*</span></label>
@@ -225,8 +227,8 @@
             <input type="text" name="apellidoSuscriptor" required>
           </div>
           <div class="campo">
-            <label>Teléfono cliente</label>
-            <input type="text" name="telefonoCliente" inputmode="tel">
+            <label>Teléfono cliente <span class="req">*</span></label>
+            <input type="text" name="telefonoCliente" inputmode="tel" required>
           </div>
           <div class="campo">
             <label>Responsable <span class="req">*</span></label>
@@ -238,32 +240,32 @@
             </select>
           </div>
           <div class="campo">
-            <label>Alimentador</label>
-            <input type="text" name="alimentador">
+            <label>Alimentador <span class="req">*</span></label>
+            <input type="text" name="alimentador" required>
           </div>
           <div class="campo">
-            <label>Punto eléctrico</label>
-            <input type="text" name="puntoElectrico">
+            <label>Punto eléctrico <span class="req">*</span></label>
+            <input type="text" name="puntoElectrico" required>
           </div>
           <div class="campo">
-            <label>Fecha de ingreso</label>
-            <input type="date" name="fechaIngreso">
+            <label>Fecha de ingreso <span class="req">*</span></label>
+            <input type="date" name="fechaIngreso" required>
           </div>
           <div class="campo">
-            <label>Fecha máx. respuesta</label>
-            <input type="date" name="fechaMaxRespuesta">
+            <label>Fecha máx. respuesta <span class="req">*</span></label>
+            <input type="date" name="fechaMaxRespuesta" required>
           </div>
           <div class="campo full">
-            <label>Gestión despacho</label>
-            <input type="text" name="gestionDespacho">
+            <label>Gestión despacho <span class="req">*</span></label>
+            <input type="text" name="gestionDespacho" required>
           </div>
           <div class="campo full">
             <label>Trabajo a realizar SAT <span class="req">*</span></label>
             <textarea name="trabajoARealizarSAT" required></textarea>
           </div>
           <div class="campo full">
-            <label>Comentario</label>
-            <textarea name="comentario"></textarea>
+            <label>Comentario <span class="req">*</span></label>
+            <textarea name="comentario" required></textarea>
           </div>
         </div>
         <div class="btn-fila">
@@ -281,6 +283,7 @@
       <div class="filtros">
         <button class="activo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
         <button data-filtro="Pendiente" onclick="setFiltro('Pendiente')">Pendientes</button>
+        <button data-filtro="En Atención" onclick="setFiltro('En Atención')">En Atención</button>
         <button data-filtro="Cerrada" onclick="setFiltro('Cerrada')">Cerradas</button>
       </div>
       <select id="filtroZona" onchange="renderLista()">
@@ -309,29 +312,52 @@
     <div id="mensajeCierre" class="mensaje"></div>
     <form id="formCierre" onsubmit="return enviarCierre(event)">
       <div class="grid">
-        <div class="campo">
-          <label>Poweron</label>
-          <input type="text" name="poweron">
+        <div class="campo full">
+          <label>Tipo de cierre <span class="req">*</span></label>
+          <select name="estadoNuevo" required>
+            <option value="Cerrada" selected>Definitivo (Cerrada)</option>
+            <option value="En Atención">Provisorio (En Atención)</option>
+          </select>
         </div>
         <div class="campo">
-          <label>Ejecutado SI/NO</label>
-          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO">
+          <label>Poweron <span class="req">*</span></label>
+          <input type="text" name="poweron" required>
         </div>
         <div class="campo">
-          <label>Fecha trabajo</label>
-          <input type="date" name="fechaTrabajo">
+          <label>Ejecutado SI/NO <span class="req">*</span></label>
+          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO" required>
         </div>
         <div class="campo">
-          <label>APP</label>
-          <input type="text" name="app">
+          <label>Fecha trabajo <span class="req">*</span></label>
+          <input type="date" name="fechaTrabajo" required>
+        </div>
+        <div class="campo">
+          <label>APP <span class="req">*</span></label>
+          <input type="text" name="app" required>
         </div>
         <div class="campo full">
-          <label>Probatorias</label>
-          <input type="text" name="probatorias">
+          <label>Probatorias <span class="req">*</span></label>
+          <input type="text" name="probatorias" required>
         </div>
         <div class="campo full">
-          <label>Observaciones</label>
-          <textarea name="observaciones"></textarea>
+          <label>Observaciones <span class="req">*</span></label>
+          <textarea name="observaciones" required></textarea>
+        </div>
+        <div class="campo full">
+          <label>Evidencia fotográfica — Foto 1 <span class="req">*</span></label>
+          <input type="file" name="foto1" accept="image/*" required>
+        </div>
+        <div class="campo full">
+          <label>Evidencia fotográfica — Foto 2 <span class="req">*</span></label>
+          <input type="file" name="foto2" accept="image/*" required>
+        </div>
+        <div class="campo full">
+          <label>Evidencia fotográfica — Foto 3 <span class="req">*</span></label>
+          <input type="file" name="foto3" accept="image/*" required>
+        </div>
+        <div class="campo full">
+          <label>Evidencia fotográfica — Foto 4 <span class="req">*</span></label>
+          <input type="file" name="foto4" accept="image/*" required>
         </div>
         <div class="campo full">
           <label>Contraseña de cierre <span class="req">*</span></label>
@@ -533,7 +559,9 @@
   function tarjetaItem(item, indice){
     const estado = item.estado || 'Pendiente';
     const esCerrada = estado === 'Cerrada';
-    const claseBadge = esCerrada ? 'cerrada' : 'pendiente';
+    let claseBadge = 'pendiente';
+    if (estado === 'Cerrada') claseBadge = 'cerrada';
+    else if (estado === 'En Atención') claseBadge = 'atencion';
     const idUnico = 'item_' + indice;
 
     const filasDetalle = [
@@ -548,7 +576,7 @@
     ];
 
     let bloqueCierre = '';
-    if (esCerrada){
+    if (estado !== 'Pendiente'){
       bloqueCierre = [
         ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
         ['Fecha trabajo', item.fechaTrabajo], ['APP', item.app],
@@ -559,7 +587,7 @@
     const dl = filasDetalle.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
 
     const botonCerrar = esCerrada ? '' :
-      `<button class="btn btn-primario" style="margin-top:10px" onclick="abrirCierre(event, ${JSON.stringify(item.id)})">Cerrar tarea</button>`;
+      `<button class="btn btn-primario" style="margin-top:10px" onclick="abrirCierre(event, ${JSON.stringify(item.id)})">Actualizar estado / cerrar</button>`;
 
     return `
       <div class="item">
@@ -586,6 +614,33 @@
     document.getElementById(id).classList.toggle('abierto');
   }
 
+  // --------------------- Fotos de cierre ---------------------
+  // Redimensiona/comprime la imagen en el navegador antes de enviarla,
+  // para no mandar fotos de varios MB tal cual salen de la cámara del celular.
+  function comprimirImagen(archivo, dimensionMax = 1280, calidad = 0.72){
+    return new Promise((resolve, reject) => {
+      const lector = new FileReader();
+      lector.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+      lector.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('No se pudo procesar la imagen.'));
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > dimensionMax || height > dimensionMax){
+            if (width > height){ height = Math.round(height * dimensionMax / width); width = dimensionMax; }
+            else { width = Math.round(width * dimensionMax / height); height = dimensionMax; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', calidad).split(',')[1]); // solo el base64
+        };
+        img.src = lector.result;
+      };
+      lector.readAsDataURL(archivo);
+    });
+  }
+
   // --------------------- Cierre de tarea ---------------------
   function abrirCierre(evento, id){
     evento.stopPropagation();
@@ -607,13 +662,27 @@
       return false;
     }
     const form = document.getElementById('formCierre');
-    const datos = Object.fromEntries(new FormData(form).entries());
+    const datos = {};
+    for (const [clave, valor] of new FormData(form).entries()){
+      if (valor instanceof File) continue; // las 4 fotos se procesan aparte, más abajo
+      datos[clave] = valor;
+    }
     datos.accion = 'cerrar';
     datos.idRegistro = idEnCierre;
 
+    const archivosFoto = ['foto1', 'foto2', 'foto3', 'foto4'].map(n => form.elements[n].files[0]);
+    if (archivosFoto.some(f => !f)){
+      mostrarMensaje('mensajeCierre', 'Debes adjuntar las 4 fotografías.', 'error');
+      return false;
+    }
+
     const boton = document.getElementById('btnCerrarTarea');
-    boton.disabled = true; boton.textContent = 'Cerrando...';
+    boton.disabled = true; boton.textContent = 'Procesando fotos...';
     try {
+      const [foto1, foto2, foto3, foto4] = await Promise.all(archivosFoto.map(f => comprimirImagen(f)));
+      datos.foto1 = foto1; datos.foto2 = foto2; datos.foto3 = foto3; datos.foto4 = foto4;
+
+      boton.textContent = 'Cerrando...';
       const resp = await fetch(CONFIG.urlEscribir, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -622,13 +691,16 @@
       const resultado = await resp.json().catch(() => ({}));
       if (resp.ok && resultado.resultado !== 'error'){
         cerrarModal();
-        mostrarMensaje('mensajeLista', 'Presentación cerrada correctamente.', 'ok');
+        const mensajeExito = datos.estadoNuevo === 'En Atención'
+          ? 'Presentación marcada como "En Atención".'
+          : 'Presentación cerrada correctamente.';
+        mostrarMensaje('mensajeLista', mensajeExito, 'ok');
         cargarLista();
       } else {
         mostrarMensaje('mensajeCierre', resultado.mensaje || 'Contraseña incorrecta o error al cerrar.', 'error');
       }
     } catch (err) {
-      mostrarMensaje('mensajeCierre', 'Error de conexión con el flujo. Revisa la URL y el CORS del flujo de escritura.', 'error');
+      mostrarMensaje('mensajeCierre', 'No se pudieron procesar las fotos o hubo un error de conexión con el flujo.', 'error');
     } finally {
       boton.disabled = false; boton.textContent = 'Confirmar cierre';
     }
