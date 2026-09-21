@@ -397,6 +397,7 @@
   let idEnCierre = null;    // ID de SharePoint del registro que se está cerrando
   let historialAtencionActual = ''; // historial de comentarios "En Atención" ya guardados en el registro que se está cerrando
   let responsableActual = '';       // responsable asignado a la presentación (se fijó al crearla), usado por el flujo para saber a quién enviar el correo
+  let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -690,6 +691,7 @@
     const item = datosLista.find(it => String(it.id) === String(id));
     historialAtencionActual = (item && item.comentarioAtencion) ? item.comentarioAtencion : '';
     responsableActual = (item && item.responsable) ? item.responsable : '';
+    identificadorActual = (item && item.identificador) ? item.identificador : '';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
@@ -701,6 +703,7 @@
     idEnCierre = null;
     historialAtencionActual = '';
     responsableActual = '';
+    identificadorActual = '';
   }
 
   async function enviarCierre(evento){
@@ -719,7 +722,8 @@
       estadoNuevo,
       clave: form.elements['clave'].value,
       marcaTiempo: Date.now().toString(), // para que cada tanda de fotos quede con nombre único en SharePoint
-      responsable: responsableActual // para que el flujo sepa a quién enviarle el correo al cerrar definitivamente
+      responsable: responsableActual, // para que el flujo sepa a quién enviarle el correo al cerrar definitivamente
+      identificador: identificadorActual // para el asunto del correo y el nombre de los archivos adjuntos
     };
 
     // ---- Campos operativos: iguales en los dos estados ----
