@@ -331,21 +331,21 @@
           <div id="textoHistorialAtencion" style="font-size:13px; color:var(--gris-oscuro); background:var(--fondo); border-radius:7px; padding:9px 10px; white-space:pre-line;"></div>
         </div>
 
-        <div class="campo solo-cerrada">
+        <div class="campo">
           <label>Poweron <span class="req">*</span></label>
-          <input type="text" name="poweron">
+          <input type="text" name="poweron" required>
         </div>
-        <div class="campo solo-cerrada">
+        <div class="campo">
           <label>Ejecutado SI/NO <span class="req">*</span></label>
-          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO">
+          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO" required>
         </div>
-        <div class="campo solo-cerrada">
+        <div class="campo">
           <label>Fecha trabajo <span class="req">*</span></label>
-          <input type="date" name="fechaTrabajo">
+          <input type="date" name="fechaTrabajo" required>
         </div>
-        <div class="campo full solo-cerrada">
+        <div class="campo full">
           <label>Probatorias <span class="req">*</span></label>
-          <input type="text" name="probatorias">
+          <input type="text" name="probatorias" required>
         </div>
         <div class="campo full solo-cerrada">
           <label>Observaciones de cierre definitivo <span class="req">*</span></label>
@@ -396,6 +396,7 @@
   let filtroEstado = 'todas';
   let idEnCierre = null;    // ID de SharePoint del registro que se está cerrando
   let historialAtencionActual = ''; // historial de comentarios "En Atención" ya guardados en el registro que se está cerrando
+  let responsableActual = '';       // responsable asignado a la presentación (se fijó al crearla), usado por el flujo para saber a quién enviar el correo
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -688,6 +689,7 @@
     idEnCierre = id;
     const item = datosLista.find(it => String(it.id) === String(id));
     historialAtencionActual = (item && item.comentarioAtencion) ? item.comentarioAtencion : '';
+    responsableActual = (item && item.responsable) ? item.responsable : '';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
@@ -698,6 +700,7 @@
     document.getElementById('overlayCierre').classList.remove('activo');
     idEnCierre = null;
     historialAtencionActual = '';
+    responsableActual = '';
   }
 
   async function enviarCierre(evento){
@@ -715,25 +718,29 @@
       idRegistro: idEnCierre,
       estadoNuevo,
       clave: form.elements['clave'].value,
-      marcaTiempo: Date.now().toString() // para que cada tanda de fotos quede con nombre único en SharePoint
+      marcaTiempo: Date.now().toString(), // para que cada tanda de fotos quede con nombre único en SharePoint
+      responsable: responsableActual // para que el flujo sepa a quién enviarle el correo al cerrar definitivamente
     };
 
-    // ---- Comentario / historial "En Atención" (siempre se reenvía para no perderlo) ----
+    // ---- Campos operativos: iguales en los dos estados ----
+    datos.poweron = form.elements['poweron'].value;
+    datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
+    datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
+    datos.probatorias = form.elements['probatorias'].value;
+
+    // ---- Lo único distinto entre los dos estados es el comentario ----
     if (esAtencion){
       const comentario = form.elements['comentarioAtencion'].value.trim();
       if (!comentario){
         mostrarMensaje('mensajeCierre', 'Debes ingresar un comentario indicando el motivo.', 'error');
         return false;
       }
+      // Se acumula como historial, sin borrar las entradas anteriores
       datos.comentarioAtencion = historialAtencionActual
         ? historialAtencionActual + '\n' + nuevaEntradaHistorial(comentario)
         : nuevaEntradaHistorial(comentario);
     } else {
-      // Cierre definitivo: se piden los campos operativos y se conserva el historial tal cual
-      datos.poweron = form.elements['poweron'].value;
-      datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
-      datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
-      datos.probatorias = form.elements['probatorias'].value;
+      // Cierre definitivo: comentario final único + se conserva el historial de "En Atención" tal cual
       datos.observaciones = form.elements['observaciones'].value;
       datos.comentarioAtencion = historialAtencionActual; // se reenvía tal cual para que el flujo no lo borre
     }
