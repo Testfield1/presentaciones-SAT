@@ -147,6 +147,7 @@
   .modal h3{margin:0 0 4px; font-size:16px;}
   .modal .sub{font-size:12.5px; color:var(--gris); margin:0 0 16px;}
   .modal .grid{margin-bottom:4px;}
+  .solo-atencion{display:none;}
 
   footer{text-align:center; font-size:11.5px; color:var(--gris); padding:20px 10px 30px;}
 </style>
@@ -314,34 +315,41 @@
       <div class="grid">
         <div class="campo full">
           <label>Tipo de cierre <span class="req">*</span></label>
-          <select name="estadoNuevo" required>
+          <select name="estadoNuevo" required onchange="actualizarCamposCierre()">
             <option value="Cerrada" selected>Definitivo (Cerrada)</option>
             <option value="En Atención">Provisorio (En Atención)</option>
           </select>
         </div>
-        <div class="campo">
+
+        <div class="campo full solo-atencion">
+          <label>Comentario — motivo por el que queda "En Atención" <span class="req">*</span></label>
+          <textarea name="comentarioAtencion"></textarea>
+        </div>
+
+        <div class="campo full solo-cerrada" id="bloqueHistorialAtencion" style="display:none;">
+          <label>Historial de comentarios "En Atención"</label>
+          <div id="textoHistorialAtencion" style="font-size:13px; color:var(--gris-oscuro); background:var(--fondo); border-radius:7px; padding:9px 10px; white-space:pre-line;"></div>
+        </div>
+
+        <div class="campo solo-cerrada">
           <label>Poweron <span class="req">*</span></label>
-          <input type="text" name="poweron" required>
+          <input type="text" name="poweron">
         </div>
-        <div class="campo">
+        <div class="campo solo-cerrada">
           <label>Ejecutado SI/NO <span class="req">*</span></label>
-          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO" required>
+          <input type="text" name="ejecutadoSiNo" placeholder="SI / NO">
         </div>
-        <div class="campo">
+        <div class="campo solo-cerrada">
           <label>Fecha trabajo <span class="req">*</span></label>
-          <input type="date" name="fechaTrabajo" required>
+          <input type="date" name="fechaTrabajo">
         </div>
-        <div class="campo">
-          <label>APP <span class="req">*</span></label>
-          <input type="text" name="app" required>
-        </div>
-        <div class="campo full">
+        <div class="campo full solo-cerrada">
           <label>Probatorias <span class="req">*</span></label>
-          <input type="text" name="probatorias" required>
+          <input type="text" name="probatorias">
         </div>
-        <div class="campo full">
-          <label>Observaciones <span class="req">*</span></label>
-          <textarea name="observaciones" required></textarea>
+        <div class="campo full solo-cerrada">
+          <label>Observaciones de cierre definitivo <span class="req">*</span></label>
+          <textarea name="observaciones"></textarea>
         </div>
         <div class="campo full">
           <label>Evidencia fotográfica — Foto 1 <span class="req">*</span></label>
@@ -387,6 +395,7 @@
   let datosLista = [];      // último listado traído del flujo de lectura
   let filtroEstado = 'todas';
   let idEnCierre = null;    // ID de SharePoint del registro que se está cerrando
+  let historialAtencionActual = ''; // historial de comentarios "En Atención" ya guardados en el registro que se está cerrando
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -523,7 +532,7 @@
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
     ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['comentario', 'Comentario'],
     ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
-    ['app', 'APP'], ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones']
+    ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
   ];
 
   function exportarExcel(){
@@ -577,11 +586,15 @@
 
     let bloqueCierre = '';
     if (estado !== 'Pendiente'){
-      bloqueCierre = [
+      const filasCierre = [
         ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
-        ['Fecha trabajo', item.fechaTrabajo], ['APP', item.app],
+        ['Fecha trabajo', item.fechaTrabajo],
         ['Probatorias', item.probatorias], ['Observaciones', item.observaciones]
-      ].map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
+      ];
+      if (item.comentarioAtencion){
+        filasCierre.push(['Historial "En Atención"', item.comentarioAtencion.replace(/\n/g, '<br>')]);
+      }
+      bloqueCierre = filasCierre.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
     }
 
     const dl = filasDetalle.map(par => `<dt>${par[0]}</dt><dd>${valorODefecto(par[1])}</dd>`).join('');
@@ -642,17 +655,49 @@
   }
 
   // --------------------- Cierre de tarea ---------------------
+  function actualizarCamposCierre(){
+    const esAtencion = document.querySelector('#formCierre select[name="estadoNuevo"]').value === 'En Atención';
+
+    document.querySelectorAll('#formCierre .solo-cerrada').forEach(el => {
+      el.style.display = esAtencion ? 'none' : 'flex';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = !esAtencion;
+    });
+    document.querySelectorAll('#formCierre .solo-atencion').forEach(el => {
+      el.style.display = esAtencion ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esAtencion;
+    });
+
+    const bloqueHistorial = document.getElementById('bloqueHistorialAtencion');
+    if (!esAtencion && historialAtencionActual){
+      bloqueHistorial.style.display = '';
+      document.getElementById('textoHistorialAtencion').innerHTML = historialAtencionActual.replace(/\n/g, '<br>');
+    } else {
+      bloqueHistorial.style.display = 'none';
+    }
+  }
+
+  function nuevaEntradaHistorial(comentario){
+    const fecha = new Date().toLocaleString('es-CL', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    return `[${fecha}] ${comentario}`;
+  }
+
   function abrirCierre(evento, id){
     evento.stopPropagation();
     idEnCierre = id;
+    const item = datosLista.find(it => String(it.id) === String(id));
+    historialAtencionActual = (item && item.comentarioAtencion) ? item.comentarioAtencion : '';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
+    actualizarCamposCierre();
     document.getElementById('overlayCierre').classList.add('activo');
   }
 
   function cerrarModal(){
     document.getElementById('overlayCierre').classList.remove('activo');
     idEnCierre = null;
+    historialAtencionActual = '';
   }
 
   async function enviarCierre(evento){
@@ -662,27 +707,50 @@
       return false;
     }
     const form = document.getElementById('formCierre');
-    const datos = {};
-    for (const [clave, valor] of new FormData(form).entries()){
-      if (valor instanceof File) continue; // las 4 fotos se procesan aparte, más abajo
-      datos[clave] = valor;
-    }
-    datos.accion = 'cerrar';
-    datos.idRegistro = idEnCierre;
+    const estadoNuevo = form.elements['estadoNuevo'].value;
+    const boton = document.getElementById('btnCerrarTarea');
+    const esAtencion = estadoNuevo === 'En Atención';
+    const datos = {
+      accion: 'cerrar',
+      idRegistro: idEnCierre,
+      estadoNuevo,
+      clave: form.elements['clave'].value,
+      marcaTiempo: Date.now().toString() // para que cada tanda de fotos quede con nombre único en SharePoint
+    };
 
+    // ---- Comentario / historial "En Atención" (siempre se reenvía para no perderlo) ----
+    if (esAtencion){
+      const comentario = form.elements['comentarioAtencion'].value.trim();
+      if (!comentario){
+        mostrarMensaje('mensajeCierre', 'Debes ingresar un comentario indicando el motivo.', 'error');
+        return false;
+      }
+      datos.comentarioAtencion = historialAtencionActual
+        ? historialAtencionActual + '\n' + nuevaEntradaHistorial(comentario)
+        : nuevaEntradaHistorial(comentario);
+    } else {
+      // Cierre definitivo: se piden los campos operativos y se conserva el historial tal cual
+      datos.poweron = form.elements['poweron'].value;
+      datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
+      datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
+      datos.probatorias = form.elements['probatorias'].value;
+      datos.observaciones = form.elements['observaciones'].value;
+      datos.comentarioAtencion = historialAtencionActual; // se reenvía tal cual para que el flujo no lo borre
+    }
+
+    // ---- Fotos: siempre obligatorias, tanto en "En Atención" como en el cierre definitivo ----
     const archivosFoto = ['foto1', 'foto2', 'foto3', 'foto4'].map(n => form.elements[n].files[0]);
     if (archivosFoto.some(f => !f)){
       mostrarMensaje('mensajeCierre', 'Debes adjuntar las 4 fotografías.', 'error');
       return false;
     }
 
-    const boton = document.getElementById('btnCerrarTarea');
     boton.disabled = true; boton.textContent = 'Procesando fotos...';
     try {
       const [foto1, foto2, foto3, foto4] = await Promise.all(archivosFoto.map(f => comprimirImagen(f)));
       datos.foto1 = foto1; datos.foto2 = foto2; datos.foto3 = foto3; datos.foto4 = foto4;
 
-      boton.textContent = 'Cerrando...';
+      boton.textContent = esAtencion ? 'Guardando...' : 'Cerrando...';
       const resp = await fetch(CONFIG.urlEscribir, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -691,9 +759,7 @@
       const resultado = await resp.json().catch(() => ({}));
       if (resp.ok && resultado.resultado !== 'error'){
         cerrarModal();
-        const mensajeExito = datos.estadoNuevo === 'En Atención'
-          ? 'Presentación marcada como "En Atención".'
-          : 'Presentación cerrada correctamente.';
+        const mensajeExito = esAtencion ? 'Presentación marcada como "En Atención".' : 'Presentación cerrada correctamente.';
         mostrarMensaje('mensajeLista', mensajeExito, 'ok');
         cargarLista();
       } else {
