@@ -342,6 +342,11 @@
         </div>
 
         <div class="campo">
+          <label>Técnico que ejecuta <span class="req">*</span></label>
+          <input type="text" name="tecnicoEjecuta" list="listaTecnicos" autocomplete="off" required>
+          <datalist id="listaTecnicos"></datalist>
+        </div>
+        <div class="campo">
           <label>Poweron <span class="req">*</span></label>
           <input type="text" name="poweron" required>
         </div>
@@ -399,7 +404,8 @@
   // =====================================================================
   const CONFIG = {
     urlLeer:     'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/bebfc6bc7ca94370a53f15f36377c07d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GXKf0aXMlRWa7MXDSfqx49RBImVWgHnXdWu5L-uPqQo',
-    urlEscribir: 'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/16d84d9d330f4109beb5278e0eda65e7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8Iy-8hobHTY5Dl_a0VRRB35oe9r-XAlXFyY4UEUzoMU'
+    urlEscribir: 'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/16d84d9d330f4109beb5278e0eda65e7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8Iy-8hobHTY5Dl_a0VRRB35oe9r-XAlXFyY4UEUzoMU',
+    urlTecnicos: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR-YfSMgZixoOEdRVYiPZxnaVDkwLZVG4Aq-K9wCQNEebmrtPbsBkyzK5ySD7KpDgmrZT5dg9Z31_DZ/pub?gid=0&single=true&output=csv'
   };
 
   let datosLista = [];      // último listado traído del flujo de lectura
@@ -419,6 +425,42 @@
       cargarLista();
     }
   }
+
+  // --------------------- Lista de técnicos (Google Sheets) ---------------------
+  function primerCampoCSV(linea){
+    // Toma el primer valor de una línea CSV respetando comillas (por si algún nombre trae una coma).
+    let campo = '';
+    let dentroComillas = false;
+    for (let i = 0; i < linea.length; i++){
+      const c = linea[i];
+      if (c === '"'){
+        if (dentroComillas && linea[i + 1] === '"'){ campo += '"'; i++; }
+        else dentroComillas = !dentroComillas;
+      } else if (c === ',' && !dentroComillas){
+        break;
+      } else {
+        campo += c;
+      }
+    }
+    return campo.trim();
+  }
+
+  async function cargarListaTecnicos(){
+    if (!urlConfigurada(CONFIG.urlTecnicos)) return;
+    try {
+      const resp = await fetch(CONFIG.urlTecnicos);
+      if (!resp.ok) return;
+      const texto = await resp.text();
+      const nombres = texto.split(/\r?\n/)
+        .map(linea => primerCampoCSV(linea))
+        .filter(nombre => nombre && !/^(nombre|nombres|t[eé]cnico|t[eé]cnicos)$/i.test(nombre));
+      const datalist = document.getElementById('listaTecnicos');
+      if (datalist) datalist.innerHTML = nombres.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+    } catch (err) {
+      // si falla la carga, el campo sigue funcionando como texto libre normal, sin sugerencias
+    }
+  }
+  cargarListaTecnicos();
 
   function mostrarMensaje(idEl, texto, tipo){
     const el = document.getElementById(idEl);
@@ -594,7 +636,7 @@
     ['responsable', 'Responsable'], ['alimentador', 'Alimentador'], ['puntoElectrico', 'Punto eléctrico'],
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
     ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['comentario', 'Comentario'],
-    ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
+    ['tecnicoEjecuta', 'Técnico que ejecuta'], ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
     ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
   ];
 
@@ -658,6 +700,7 @@
     let bloqueCierre = '';
     if (estado !== 'Pendiente'){
       const filasCierre = [
+        ['Técnico que ejecuta', item.tecnicoEjecuta],
         ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
         ['Fecha trabajo', item.fechaTrabajo],
         ['Probatorias', item.probatorias], ['Observaciones', item.observaciones]
@@ -771,6 +814,7 @@
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
+    cargarListaTecnicos(); // refresca la lista de técnicos por si se editó la hoja de Google Sheets
     document.getElementById('overlayCierre').classList.add('activo');
   }
 
@@ -803,6 +847,7 @@
     };
 
     // ---- Campos operativos: iguales en los dos estados ----
+    datos.tecnicoEjecuta = form.elements['tecnicoEjecuta'].value;
     datos.poweron = form.elements['poweron'].value;
     datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
     datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
