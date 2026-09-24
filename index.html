@@ -240,7 +240,7 @@
               <option value="Claudio Silva">Claudio Silva</option>
               <option value="Viviana Zamora">Viviana Zamora</option>
             </select>
-            <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se asigna automáticamente según el área solicitante.</div>
+            <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se asigna automáticamente según el área solicitante. Para Mantenimiento puedes elegir entre René Catalán y Viviana Zamora.</div>
           </div>
           <div class="campo">
             <label>Alimentador <span class="req">*</span></label>
@@ -305,6 +305,10 @@
         <option value="Valparaíso">Valparaíso</option>
         <option value="Costa">Costa</option>
         <option value="Marga Marga">Marga Marga</option>
+      </select>
+      <select id="ordenLista" onchange="renderLista()">
+        <option value="nuevas" selected>Más nuevas primero</option>
+        <option value="antiguas">Más antiguas primero</option>
       </select>
       <button class="btn btn-secundario" onclick="cargarLista()">Actualizar</button>
       <button class="btn btn-secundario" onclick="exportarExcel()">Exportar a Excel</button>
@@ -494,20 +498,23 @@
 
   // --------------------- Crear presentación ---------------------
   const MAPA_RESPONSABLE_POR_AREA = {
-    'Mantenimiento': 'René Catalán',
-    'Manejo de vegetación': 'Claudio Silva',
-    'Empalme': 'Viviana Zamora'
+    'Mantenimiento': ['René Catalán', 'Viviana Zamora'],
+    'Manejo de vegetación': ['Claudio Silva'],
+    'Empalme': ['Viviana Zamora']
   };
 
   function actualizarResponsablePorArea(){
     const area = document.querySelector('#formCrear select[name="areaSolicitante"]').value;
-    const responsableFijo = MAPA_RESPONSABLE_POR_AREA[area];
+    const responsablesPermitidos = MAPA_RESPONSABLE_POR_AREA[area];
     const selectResponsable = document.querySelector('#formCrear select[name="responsable"]');
     selectResponsable.querySelectorAll('option').forEach(opcion => {
       if (opcion.value === '') return; // deja siempre disponible el placeholder
-      opcion.disabled = !!responsableFijo && opcion.value !== responsableFijo;
+      opcion.disabled = !!responsablesPermitidos && !responsablesPermitidos.includes(opcion.value);
     });
-    selectResponsable.value = responsableFijo || '';
+    // Si el área tiene un solo responsable posible, se preselecciona automáticamente.
+    // Si tiene más de uno (ej. Mantenimiento: René Catalán o Viviana Zamora), se deja
+    // el campo sin seleccionar para que el usuario elija cuál corresponde.
+    selectResponsable.value = (responsablesPermitidos && responsablesPermitidos.length === 1) ? responsablesPermitidos[0] : '';
     actualizarCamposCreacion(); // el responsable pudo haber cambiado, revisa si corresponde pedir las fotos de vegetación
   }
 
@@ -624,13 +631,20 @@
   function filasFiltradas(){
     const texto = document.getElementById('buscador').value.trim().toLowerCase();
     const zona = document.getElementById('filtroZona').value;
-    return datosLista.filter(item => {
+    const orden = document.getElementById('ordenLista').value;
+    const filas = datosLista.filter(item => {
       if (filtroEstado !== 'todas' && (item.estado || 'Pendiente') !== filtroEstado) return false;
       if (zona !== 'todas' && item.zona !== zona) return false;
       if (!texto) return true;
       const campos = [item.identificador, item.producto, item.nombreSuscriptor, item.apellidoSuscriptor, item.areaSolicitante];
       return campos.some(c => (c || '').toString().toLowerCase().includes(texto));
     });
+    filas.sort((a, b) => {
+      const idA = Number(a.id) || 0;
+      const idB = Number(b.id) || 0;
+      return orden === 'antiguas' ? idA - idB : idB - idA;
+    });
+    return filas;
   }
 
   function renderLista(){
@@ -740,11 +754,13 @@
     const botonCerrar = esCerrada ? '' :
       `<button class="btn btn-primario" style="margin-top:10px" onclick="abrirCierre(event, ${JSON.stringify(item.id)})">Actualizar estado / cerrar</button>`;
 
+    const fechaCreacion = formatearFecha(item.fechaIngreso);
+
     return `
       <div class="item">
         <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
           <div>
-            <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(item.producto)}</div>
+            <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(item.producto)}${fechaCreacion ? ' · ' + fechaCreacion : ''}</div>
             <div class="item-sub">${valorODefecto(item.nombreSuscriptor)} ${valorODefecto(item.apellidoSuscriptor, '')} · ${valorODefecto(item.areaSolicitante)} · ${valorODefecto(item.zona)}</div>
           </div>
           <span class="badge ${claseBadge}">${estado}</span>
@@ -754,6 +770,15 @@
           ${botonCerrar}
         </div>
       </div>`;
+  }
+
+  function formatearFecha(fechaISO){
+    // Convierte "AAAA-MM-DD" a "DD-MM-AAAA" sin usar Date() para evitar corrimientos de zona horaria.
+    if (!fechaISO) return null;
+    const partes = String(fechaISO).split('-');
+    if (partes.length !== 3) return fechaISO;
+    const [anio, mes, dia] = partes;
+    return `${dia}-${mes}-${anio}`;
   }
 
   function valorODefecto(v, porDefecto){
