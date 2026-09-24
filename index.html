@@ -347,6 +347,11 @@
           <datalist id="listaTecnicos"></datalist>
         </div>
         <div class="campo">
+          <label>Despachador <span class="req">*</span></label>
+          <input type="text" name="despachador" list="listaDespachadores" autocomplete="off" required>
+          <datalist id="listaDespachadores"></datalist>
+        </div>
+        <div class="campo">
           <label>Poweron <span class="req">*</span></label>
           <input type="text" name="poweron" required>
         </div>
@@ -426,9 +431,10 @@
     }
   }
 
-  // --------------------- Lista de técnicos (Google Sheets) ---------------------
-  function primerCampoCSV(linea){
-    // Toma el primer valor de una línea CSV respetando comillas (por si algún nombre trae una coma).
+  // --------------------- Listas de personas (Google Sheets: col. A técnicos, col. B despachadores) ---------------------
+  function camposCSV(linea){
+    // Separa una línea CSV en sus campos, respetando comillas (por si algún nombre trae una coma).
+    const campos = [];
     let campo = '';
     let dentroComillas = false;
     for (let i = 0; i < linea.length; i++){
@@ -437,30 +443,41 @@
         if (dentroComillas && linea[i + 1] === '"'){ campo += '"'; i++; }
         else dentroComillas = !dentroComillas;
       } else if (c === ',' && !dentroComillas){
-        break;
+        campos.push(campo.trim());
+        campo = '';
       } else {
         campo += c;
       }
     }
-    return campo.trim();
+    campos.push(campo.trim());
+    return campos;
   }
 
-  async function cargarListaTecnicos(){
+  function esEncabezadoLista(valor){
+    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores)$/i.test(valor || '');
+  }
+
+  function llenarDatalist(idDatalist, nombres){
+    const datalist = document.getElementById(idDatalist);
+    if (datalist) datalist.innerHTML = nombres.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+  }
+
+  async function cargarListasPersonas(){
     if (!urlConfigurada(CONFIG.urlTecnicos)) return;
     try {
       const resp = await fetch(CONFIG.urlTecnicos);
       if (!resp.ok) return;
       const texto = await resp.text();
-      const nombres = texto.split(/\r?\n/)
-        .map(linea => primerCampoCSV(linea))
-        .filter(nombre => nombre && !/^(nombre|nombres|t[eé]cnico|t[eé]cnicos)$/i.test(nombre));
-      const datalist = document.getElementById('listaTecnicos');
-      if (datalist) datalist.innerHTML = nombres.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+      const filas = texto.split(/\r?\n/).map(linea => camposCSV(linea)).filter(campos => campos.some(c => c));
+      const nombresTecnicos = filas.map(f => f[0]).filter(n => n && !esEncabezadoLista(n));
+      const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
+      llenarDatalist('listaTecnicos', nombresTecnicos);
+      llenarDatalist('listaDespachadores', nombresDespachadores);
     } catch (err) {
-      // si falla la carga, el campo sigue funcionando como texto libre normal, sin sugerencias
+      // si falla la carga, los campos siguen funcionando como texto libre normal, sin sugerencias
     }
   }
-  cargarListaTecnicos();
+  cargarListasPersonas();
 
   function mostrarMensaje(idEl, texto, tipo){
     const el = document.getElementById(idEl);
@@ -636,7 +653,7 @@
     ['responsable', 'Responsable'], ['alimentador', 'Alimentador'], ['puntoElectrico', 'Punto eléctrico'],
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
     ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['comentario', 'Comentario'],
-    ['tecnicoEjecuta', 'Técnico que ejecuta'], ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
+    ['tecnicoEjecuta', 'Técnico que ejecuta'], ['despachador', 'Despachador'], ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
     ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
   ];
 
@@ -700,7 +717,7 @@
     let bloqueCierre = '';
     if (estado !== 'Pendiente'){
       const filasCierre = [
-        ['Técnico que ejecuta', item.tecnicoEjecuta],
+        ['Técnico que ejecuta', item.tecnicoEjecuta], ['Despachador', item.despachador],
         ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
         ['Fecha trabajo', item.fechaTrabajo],
         ['Probatorias', item.probatorias], ['Observaciones', item.observaciones]
@@ -814,7 +831,7 @@
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
-    cargarListaTecnicos(); // refresca la lista de técnicos por si se editó la hoja de Google Sheets
+    cargarListasPersonas(); // refresca las listas de técnicos y despachadores por si se editó la hoja de Google Sheets
     document.getElementById('overlayCierre').classList.add('activo');
   }
 
@@ -848,6 +865,7 @@
 
     // ---- Campos operativos: iguales en los dos estados ----
     datos.tecnicoEjecuta = form.elements['tecnicoEjecuta'].value;
+    datos.despachador = form.elements['despachador'].value;
     datos.poweron = form.elements['poweron'].value;
     datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
     datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
