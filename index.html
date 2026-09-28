@@ -148,12 +148,19 @@
   .chart-card h3{font-size:14px; margin:0 0 14px; color:var(--carbon);}
   .barra-fila{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .barra-fila:last-child{margin-bottom:0;}
-  .barra-etiqueta{flex:0 0 150px; font-size:12.5px; color:var(--gris-oscuro); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .barra-pista{flex:1; background:var(--fondo); border-radius:4px; height:20px;}
-  .barra-relleno{height:100%; border-radius:0 4px 4px 0; min-width:3px; transition:width .3s ease;}
-  .barra-relleno-apilado{display:flex; height:100%; border-radius:0 4px 4px 0; overflow:hidden; min-width:3px;}
+  .barra-etiqueta{flex:0 0 170px; font-size:12.5px; color:var(--gris-oscuro); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .barra-pista{flex:1; background:var(--fondo); border-radius:4px; height:22px;}
+  .barra-relleno{height:100%; border-radius:0 4px 4px 0; min-width:3px; position:relative; transition:width .3s ease;}
+  .barra-relleno-apilado{display:flex; height:100%; min-width:3px; position:relative;}
   .segmento-apilado{height:100%;}
-  .barra-valor{flex:0 0 30px; font-size:12.5px; font-weight:700; color:var(--carbon);}
+  .barra-numero-adentro{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    color:#fff; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none;
+  }
+  .barra-numero-afuera{
+    position:absolute; left:100%; top:50%; transform:translateY(-50%); margin-left:6px;
+    color:var(--carbon); font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none;
+  }
   .leyenda-estado{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; color:var(--gris-oscuro);}
   .leyenda-estado span{display:inline-flex; align-items:center; gap:6px;}
   .leyenda-punto{width:10px; height:10px; border-radius:3px; display:inline-block; flex-shrink:0;}
@@ -920,9 +927,18 @@
       .sort((a, b) => b.total - a.total);
   }
 
+  function agruparPorTecnicoYZona(filas){
+    // Solo cuenta presentaciones que ya tienen un técnico asignado (se define al cerrar / marcar "En Atención"),
+    // agrupadas como "Técnico — Zona" para poder comparar cuánto ha trabajado cada técnico en cada zona.
+    const filasConTecnico = filas.filter(f => f.tecnicoEjecuta && String(f.tecnicoEjecuta).trim());
+    return agruparPor(filasConTecnico, f => `${String(f.tecnicoEjecuta).trim()} — ${(f.zona && String(f.zona).trim()) || 'Sin dato'}`);
+  }
+
   function escaparHTML(str){
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+
+  const UMBRAL_NUMERO_ADENTRO = 15; // % mínimo de ancho de barra para que el número quepa cómodo adentro; si no, se pone justo al lado
 
   function renderBarras(datos, colorFn){
     if (datos.length === 0) return '<div class="vacio" style="padding:16px 0;">Sin datos para este período.</div>';
@@ -931,13 +947,15 @@
       const pct = max > 0 ? Math.round((valor / max) * 100) : 0;
       const color = colorFn ? (colorFn(etiqueta) || COLOR_REPORTE_DEFECTO) : COLOR_REPORTE_DEFECTO;
       const etiquetaSegura = escaparHTML(etiqueta);
+      const numeroHTML = pct >= UMBRAL_NUMERO_ADENTRO
+        ? `<span class="barra-numero-adentro">${valor}</span>`
+        : `<span class="barra-numero-afuera">${valor}</span>`;
       return `
         <div class="barra-fila" tabindex="0" role="img" aria-label="${etiquetaSegura}: ${valor}" data-tooltip="${etiquetaSegura}: ${valor}"
              onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
              onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()">
           <div class="barra-etiqueta">${etiquetaSegura}</div>
-          <div class="barra-pista"><div class="barra-relleno" style="width:${pct}%; background:${color};"></div></div>
-          <div class="barra-valor">${valor}</div>
+          <div class="barra-pista"><div class="barra-relleno" style="width:${pct}%; background:${color};">${numeroHTML}</div></div>
         </div>`;
     }).join('');
   }
@@ -952,17 +970,19 @@
         const pctSegmento = fila.total > 0 ? (s.valor / fila.total) * 100 : 0;
         const esUltimo = i === segmentos.length - 1;
         const tipSeguro = escaparHTML(`${fila.zona} — ${s.estado}: ${s.valor}`);
-        return `<div class="segmento-apilado" style="width:${pctSegmento}%; background:${COLOR_ESTADO[s.estado]};${esUltimo ? '' : ' border-right:2px solid #fff;'}"
+        return `<div class="segmento-apilado" style="width:${pctSegmento}%; background:${COLOR_ESTADO[s.estado]};${esUltimo ? ' border-radius:0 4px 4px 0;' : ' border-right:2px solid #fff;'}"
                   tabindex="0" role="img" aria-label="${tipSeguro}" data-tooltip="${tipSeguro}"
                   onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
                   onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()"></div>`;
       }).join('');
       const etiquetaSegura = escaparHTML(fila.zona);
+      const numeroHTML = pctTotal >= UMBRAL_NUMERO_ADENTRO
+        ? `<span class="barra-numero-adentro">${fila.total}</span>`
+        : `<span class="barra-numero-afuera">${fila.total}</span>`;
       return `
         <div class="barra-fila">
           <div class="barra-etiqueta">${etiquetaSegura}</div>
-          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}</div></div>
-          <div class="barra-valor">${fila.total}</div>
+          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}${numeroHTML}</div></div>
         </div>`;
     }).join('');
   }
@@ -1047,6 +1067,7 @@
       const porArea = agruparPor(filas, f => f.areaSolicitante);
       const porResponsable = agruparPor(filas, f => f.responsable);
       const porPrioridad = agruparPor(filas, f => normalizarTexto(f.prioridad));
+      const porTecnicoZona = agruparPorTecnicoYZona(filas);
 
       contenedor.innerHTML = `
         <div class="stat-grid">
@@ -1080,6 +1101,12 @@
         <div class="chart-card">
           <h3>Por prioridad</h3>
           ${renderBarras(porPrioridad)}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por técnico y zona</h3>
+          <div style="font-size:11.5px; color:var(--gris); margin-bottom:12px;">Cantidad de presentaciones que ha trabajado cada técnico, por zona. Solo incluye presentaciones que ya tienen técnico asignado.</div>
+          ${renderBarras(porTecnicoZona)}
         </div>
       `;
     } catch (err) {
