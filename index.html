@@ -135,6 +135,31 @@
   .vacio{text-align:center; color:var(--gris); padding:40px 10px; font-size:13.5px;}
   .cargando{text-align:center; color:var(--gris); padding:30px 10px; font-size:13.5px;}
 
+  /* ---- Reporte ---- */
+  .filtros-reporte{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .filtros-reporte select, .filtros-reporte input[type=date]{
+    border:1px solid var(--gris-claro); border-radius:7px; padding:9px 10px; font-size:13.5px; background:#fff; color:var(--carbon);
+  }
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:16px;}
+  .stat-tile{background:#fff; border-radius:10px; box-shadow:var(--sombra); padding:14px 16px;}
+  .stat-tile .stat-label{font-size:11px; font-weight:600; color:var(--gris-oscuro); text-transform:uppercase; letter-spacing:.3px;}
+  .stat-tile .stat-valor{font-size:26px; font-weight:700; color:var(--carbon); margin-top:4px;}
+  .chart-card{background:#fff; border-radius:10px; box-shadow:var(--sombra); padding:18px; margin-bottom:16px;}
+  .chart-card h3{font-size:14px; margin:0 0 14px; color:var(--carbon);}
+  .barra-fila{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .barra-fila:last-child{margin-bottom:0;}
+  .barra-etiqueta{flex:0 0 150px; font-size:12.5px; color:var(--gris-oscuro); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .barra-pista{flex:1; background:var(--fondo); border-radius:4px; height:20px;}
+  .barra-relleno{height:100%; border-radius:0 4px 4px 0; min-width:3px; transition:width .3s ease;}
+  .barra-valor{flex:0 0 30px; font-size:12.5px; font-weight:700; color:var(--carbon);}
+  .leyenda-estado{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; color:var(--gris-oscuro);}
+  .leyenda-estado span{display:inline-flex; align-items:center; gap:6px;}
+  .leyenda-punto{width:10px; height:10px; border-radius:3px; display:inline-block; flex-shrink:0;}
+  .tooltip-barra{
+    position:fixed; background:var(--carbon); color:#fff; font-size:12px; padding:6px 10px; border-radius:6px;
+    pointer-events:none; z-index:100; display:none; white-space:nowrap;
+  }
+
   .overlay{
     position:fixed; inset:0; background:rgba(20,20,22,.55); display:none;
     align-items:flex-start; justify-content:center; padding:30px 14px; overflow-y:auto; z-index:50;
@@ -168,6 +193,7 @@
 <nav class="tabs">
   <button id="tabCrearBtn" class="activo" onclick="cambiarVista('crear')">Nueva presentación</button>
   <button id="tabListaBtn" onclick="cambiarVista('lista')">Seguimiento</button>
+  <button id="tabReporteBtn" onclick="cambiarVista('reporte')">Reporte</button>
 </nav>
 
 <main>
@@ -317,6 +343,26 @@
     <div id="contenedorLista"></div>
   </section>
 
+  <!-- ===================== VISTA: REPORTE ===================== -->
+  <section id="vistaReporte" class="vista">
+    <div class="tarjeta">
+      <h2>Reporte estadístico</h2>
+      <div class="filtros-reporte">
+        <select id="rangoReporte" onchange="actualizarRangoPersonalizado()">
+          <option value="todo" selected>Todo el historial</option>
+          <option value="mes">Este mes</option>
+          <option value="anio">Este año</option>
+          <option value="personalizado">Rango personalizado</option>
+        </select>
+        <input type="date" id="reporteDesde" style="display:none;">
+        <input type="date" id="reporteHasta" style="display:none;">
+        <button id="btnGenerarReporte" class="btn btn-primario" onclick="generarReporte()">Generar reporte</button>
+      </div>
+      <div id="mensajeReporte" class="mensaje"></div>
+      <div id="contenedorReporte"></div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ===================== MODAL: CERRAR TAREA ===================== -->
@@ -406,6 +452,8 @@
 
 <footer>Gestión de Presentaciones SAT · Chilquinta</footer>
 
+<div id="tooltipBarra" class="tooltip-barra"></div>
+
 <script>
   // =====================================================================
   //  CONFIGURACIÓN — reemplaza estas dos URLs por las de tus flujos
@@ -416,6 +464,11 @@
     urlEscribir: 'https://default5f8f1b315fca45ff958cf12d692003.14.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/07/workflows/16d84d9d330f4109beb5278e0eda65e7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8Iy-8hobHTY5Dl_a0VRRB35oe9r-XAlXFyY4UEUzoMU',
     urlTecnicos: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR-YfSMgZixoOEdRVYiPZxnaVDkwLZVG4Aq-K9wCQNEebmrtPbsBkyzK5ySD7KpDgmrZT5dg9Z31_DZ/pub?gid=0&single=true&output=csv'
   };
+
+  // Colores del reporte: el de estado reutiliza los mismos colores de los badges de Seguimiento;
+  // el resto de los gráficos usa el rojo corporativo (una sola serie, no necesita distinguir por color).
+  const COLOR_ESTADO = { 'Pendiente': '#b7791f', 'En Atención': '#1d4ed8', 'Cerrada': '#1a8f4c' };
+  const COLOR_REPORTE_DEFECTO = '#E30613';
 
   let datosLista = [];      // último listado traído del flujo de lectura
   let filtroEstado = 'todas';
@@ -428,8 +481,10 @@
   function cambiarVista(vista){
     document.getElementById('vistaCrear').classList.toggle('activa', vista === 'crear');
     document.getElementById('vistaLista').classList.toggle('activa', vista === 'lista');
+    document.getElementById('vistaReporte').classList.toggle('activa', vista === 'reporte');
     document.getElementById('tabCrearBtn').classList.toggle('activo', vista === 'crear');
     document.getElementById('tabListaBtn').classList.toggle('activo', vista === 'lista');
+    document.getElementById('tabReporteBtn').classList.toggle('activo', vista === 'reporte');
     if (vista === 'lista' && datosLista.length === 0){
       cargarLista();
     }
@@ -788,6 +843,200 @@
 
   function toggleDetalle(id){
     document.getElementById(id).classList.toggle('abierto');
+  }
+
+  // --------------------- Reporte estadístico ---------------------
+  function actualizarRangoPersonalizado(){
+    const personalizado = document.getElementById('rangoReporte').value === 'personalizado';
+    document.getElementById('reporteDesde').style.display = personalizado ? '' : 'none';
+    document.getElementById('reporteHasta').style.display = personalizado ? '' : 'none';
+  }
+
+  function rangoFechasReporte(){
+    const tipo = document.getElementById('rangoReporte').value;
+    const hoy = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const hoyISO = `${hoy.getFullYear()}-${pad(hoy.getMonth() + 1)}-${pad(hoy.getDate())}`;
+    if (tipo === 'mes'){
+      return { desde: `${hoy.getFullYear()}-${pad(hoy.getMonth() + 1)}-01`, hasta: hoyISO };
+    }
+    if (tipo === 'anio'){
+      return { desde: `${hoy.getFullYear()}-01-01`, hasta: hoyISO };
+    }
+    if (tipo === 'personalizado'){
+      return {
+        desde: document.getElementById('reporteDesde').value || null,
+        hasta: document.getElementById('reporteHasta').value || null
+      };
+    }
+    return { desde: null, hasta: null }; // todo el historial
+  }
+
+  function diasEntre(fechaA, fechaB){
+    // Diferencia en días completos entre dos fechas "AAAA-MM-DD".
+    // Usa Date.UTC (no new Date(string)) para que el cálculo no dependa de la zona horaria del navegador.
+    const [a1, a2, a3] = String(fechaA).split('-').map(Number);
+    const [b1, b2, b3] = String(fechaB).split('-').map(Number);
+    const ms = Date.UTC(b1, b2 - 1, b3) - Date.UTC(a1, a2 - 1, a3);
+    return Math.round(ms / 86400000);
+  }
+
+  function normalizarTexto(v){
+    // Junta variantes de mayúsculas/minúsculas del mismo valor escrito a mano (ej. "alta" / "Alta" / "ALTA").
+    if (!v) return v;
+    const limpio = String(v).trim();
+    return limpio.charAt(0).toUpperCase() + limpio.slice(1).toLowerCase();
+  }
+
+  function agruparPor(filas, obtenerValor){
+    const conteo = new Map();
+    filas.forEach(item => {
+      let valor = obtenerValor(item);
+      valor = (valor === undefined || valor === null || valor === '') ? 'Sin dato' : String(valor).trim();
+      conteo.set(valor, (conteo.get(valor) || 0) + 1);
+    });
+    return Array.from(conteo.entries()).sort((a, b) => b[1] - a[1]);
+  }
+
+  function escaparHTML(str){
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderBarras(datos, colorFn){
+    if (datos.length === 0) return '<div class="vacio" style="padding:16px 0;">Sin datos para este período.</div>';
+    const max = Math.max(...datos.map(d => d[1]));
+    return datos.map(([etiqueta, valor]) => {
+      const pct = max > 0 ? Math.round((valor / max) * 100) : 0;
+      const color = colorFn ? (colorFn(etiqueta) || COLOR_REPORTE_DEFECTO) : COLOR_REPORTE_DEFECTO;
+      const etiquetaSegura = escaparHTML(etiqueta);
+      return `
+        <div class="barra-fila" tabindex="0" role="img" aria-label="${etiquetaSegura}: ${valor}" data-tooltip="${etiquetaSegura}: ${valor}"
+             onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
+             onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()">
+          <div class="barra-etiqueta">${etiquetaSegura}</div>
+          <div class="barra-pista"><div class="barra-relleno" style="width:${pct}%; background:${color};"></div></div>
+          <div class="barra-valor">${valor}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function mostrarTooltipBarra(evento){
+    const tip = document.getElementById('tooltipBarra');
+    tip.textContent = evento.currentTarget.dataset.tooltip;
+    tip.style.display = 'block';
+    posicionarTooltipBarra(evento);
+  }
+
+  function moverTooltipBarra(evento){
+    posicionarTooltipBarra(evento);
+  }
+
+  function posicionarTooltipBarra(evento){
+    const tip = document.getElementById('tooltipBarra');
+    const rect = evento.currentTarget.getBoundingClientRect();
+    const x = (typeof evento.clientX === 'number' && evento.clientX > 0) ? evento.clientX + 14 : rect.right + 10;
+    const y = (typeof evento.clientY === 'number' && evento.clientY > 0) ? evento.clientY + 14 : rect.top;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+
+  function ocultarTooltipBarra(){
+    document.getElementById('tooltipBarra').style.display = 'none';
+  }
+
+  async function generarReporte(){
+    const boton = document.getElementById('btnGenerarReporte');
+    const contenedor = document.getElementById('contenedorReporte');
+    document.getElementById('mensajeReporte').className = 'mensaje';
+
+    boton.disabled = true; boton.textContent = 'Generando...';
+    try {
+      await cargarLista(); // siempre trae los datos más recientes antes de calcular el reporte
+      const huboErrorCarga = document.getElementById('mensajeLista').classList.contains('error');
+      if (huboErrorCarga){
+        contenedor.innerHTML = '';
+        mostrarMensaje('mensajeReporte', 'No se pudo cargar el listado desde el flujo de lectura. Revisa la conexión e intenta de nuevo.', 'error');
+        return;
+      }
+
+      const { desde, hasta } = rangoFechasReporte();
+      const filas = datosLista.filter(item => {
+        const fecha = item.fechaIngreso;
+        if (!fecha) return false;
+        if (desde && fecha < desde) return false;
+        if (hasta && fecha > hasta) return false;
+        return true;
+      });
+
+      if (filas.length === 0){
+        contenedor.innerHTML = '';
+        mostrarMensaje('mensajeReporte', 'No hay presentaciones con fecha de ingreso dentro del período seleccionado.', 'error');
+        return;
+      }
+
+      const total = filas.length;
+      const cerradas = filas.filter(f => (f.estado || 'Pendiente') === 'Cerrada');
+      const enAtencion = filas.filter(f => (f.estado || 'Pendiente') === 'En Atención');
+      const pendientes = filas.filter(f => (f.estado || 'Pendiente') === 'Pendiente');
+
+      const diasCierre = cerradas
+        .map(f => (f.fechaTrabajo && f.fechaIngreso) ? diasEntre(f.fechaIngreso, f.fechaTrabajo) : null)
+        .filter(d => d !== null && !isNaN(d) && d >= 0);
+      const promedioCierre = diasCierre.length > 0
+        ? (diasCierre.reduce((a, b) => a + b, 0) / diasCierre.length).toFixed(1)
+        : '—';
+
+      const porEstado = agruparPor(filas, f => f.estado || 'Pendiente');
+      const porArea = agruparPor(filas, f => f.areaSolicitante);
+      const porZona = agruparPor(filas, f => f.zona);
+      const porResponsable = agruparPor(filas, f => f.responsable);
+      const porPrioridad = agruparPor(filas, f => normalizarTexto(f.prioridad));
+
+      contenedor.innerHTML = `
+        <div class="stat-grid">
+          <div class="stat-tile"><div class="stat-label">Total presentaciones</div><div class="stat-valor">${total}</div></div>
+          <div class="stat-tile"><div class="stat-label">Cerradas</div><div class="stat-valor">${cerradas.length}</div></div>
+          <div class="stat-tile"><div class="stat-label">En atención</div><div class="stat-valor">${enAtencion.length}</div></div>
+          <div class="stat-tile"><div class="stat-label">Pendientes</div><div class="stat-valor">${pendientes.length}</div></div>
+          <div class="stat-tile"><div class="stat-label">Días promedio de cierre</div><div class="stat-valor">${promedioCierre}</div></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Por estado</h3>
+          <div class="leyenda-estado">
+            <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['Pendiente']};"></span>Pendiente</span>
+            <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['En Atención']};"></span>En Atención</span>
+            <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['Cerrada']};"></span>Cerrada</span>
+          </div>
+          ${renderBarras(porEstado, etiqueta => COLOR_ESTADO[etiqueta])}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por área solicitante</h3>
+          ${renderBarras(porArea)}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por zona</h3>
+          ${renderBarras(porZona)}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por responsable</h3>
+          ${renderBarras(porResponsable)}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por prioridad</h3>
+          ${renderBarras(porPrioridad)}
+        </div>
+      `;
+    } catch (err) {
+      contenedor.innerHTML = '';
+      mostrarMensaje('mensajeReporte', 'No se pudo generar el reporte.', 'error');
+    } finally {
+      boton.disabled = false; boton.textContent = 'Generar reporte';
+    }
   }
 
   // --------------------- Fotos de cierre ---------------------
