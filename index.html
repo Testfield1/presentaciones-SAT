@@ -151,6 +151,8 @@
   .barra-etiqueta{flex:0 0 150px; font-size:12.5px; color:var(--gris-oscuro); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .barra-pista{flex:1; background:var(--fondo); border-radius:4px; height:20px;}
   .barra-relleno{height:100%; border-radius:0 4px 4px 0; min-width:3px; transition:width .3s ease;}
+  .barra-relleno-apilado{display:flex; height:100%; border-radius:0 4px 4px 0; overflow:hidden; min-width:3px;}
+  .segmento-apilado{height:100%;}
   .barra-valor{flex:0 0 30px; font-size:12.5px; font-weight:700; color:var(--carbon);}
   .leyenda-estado{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; color:var(--gris-oscuro);}
   .leyenda-estado span{display:inline-flex; align-items:center; gap:6px;}
@@ -357,6 +359,7 @@
         <input type="date" id="reporteDesde" style="display:none;">
         <input type="date" id="reporteHasta" style="display:none;">
         <button id="btnGenerarReporte" class="btn btn-primario" onclick="generarReporte()">Generar reporte</button>
+        <button type="button" id="btnLimpiarReporte" class="btn btn-secundario" onclick="limpiarReporte()">Limpiar reporte</button>
       </div>
       <div id="mensajeReporte" class="mensaje"></div>
       <div id="contenedorReporte"></div>
@@ -898,6 +901,25 @@
     return Array.from(conteo.entries()).sort((a, b) => b[1] - a[1]);
   }
 
+  const ORDEN_ESTADOS = ['Pendiente', 'En Atención', 'Cerrada'];
+
+  function agruparPorZonaYEstado(filas){
+    // Combina "por zona" y "por estado" en una sola estructura: para cada zona, cuántas
+    // presentaciones hay de cada estado (Pendiente / En Atención / Cerrada) + el total de la zona.
+    const zonas = new Map();
+    filas.forEach(item => {
+      const zona = (item.zona && String(item.zona).trim()) || 'Sin dato';
+      const estado = item.estado || 'Pendiente';
+      if (!zonas.has(zona)) zonas.set(zona, { 'Pendiente': 0, 'En Atención': 0, 'Cerrada': 0, total: 0 });
+      const registro = zonas.get(zona);
+      registro[estado] = (registro[estado] || 0) + 1;
+      registro.total++;
+    });
+    return Array.from(zonas.entries())
+      .map(([zona, valores]) => ({ zona, ...valores }))
+      .sort((a, b) => b.total - a.total);
+  }
+
   function escaparHTML(str){
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -916,6 +938,31 @@
           <div class="barra-etiqueta">${etiquetaSegura}</div>
           <div class="barra-pista"><div class="barra-relleno" style="width:${pct}%; background:${color};"></div></div>
           <div class="barra-valor">${valor}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderBarrasApiladasPorZona(datos){
+    if (datos.length === 0) return '<div class="vacio" style="padding:16px 0;">Sin datos para este período.</div>';
+    const max = Math.max(...datos.map(d => d.total));
+    return datos.map(fila => {
+      const pctTotal = max > 0 ? (fila.total / max) * 100 : 0;
+      const segmentos = ORDEN_ESTADOS.map(estado => ({ estado, valor: fila[estado] || 0 })).filter(s => s.valor > 0);
+      const segmentosHTML = segmentos.map((s, i) => {
+        const pctSegmento = fila.total > 0 ? (s.valor / fila.total) * 100 : 0;
+        const esUltimo = i === segmentos.length - 1;
+        const tipSeguro = escaparHTML(`${fila.zona} — ${s.estado}: ${s.valor}`);
+        return `<div class="segmento-apilado" style="width:${pctSegmento}%; background:${COLOR_ESTADO[s.estado]};${esUltimo ? '' : ' border-right:2px solid #fff;'}"
+                  tabindex="0" role="img" aria-label="${tipSeguro}" data-tooltip="${tipSeguro}"
+                  onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
+                  onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()"></div>`;
+      }).join('');
+      const etiquetaSegura = escaparHTML(fila.zona);
+      return `
+        <div class="barra-fila">
+          <div class="barra-etiqueta">${etiquetaSegura}</div>
+          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}</div></div>
+          <div class="barra-valor">${fila.total}</div>
         </div>`;
     }).join('');
   }
@@ -942,6 +989,16 @@
 
   function ocultarTooltipBarra(){
     document.getElementById('tooltipBarra').style.display = 'none';
+  }
+
+  function limpiarReporte(){
+    // Vuelve los filtros a su estado inicial y deja el reporte en blanco, sin volver a pedir datos al flujo.
+    document.getElementById('rangoReporte').value = 'todo';
+    document.getElementById('reporteDesde').value = '';
+    document.getElementById('reporteHasta').value = '';
+    actualizarRangoPersonalizado();
+    document.getElementById('mensajeReporte').className = 'mensaje';
+    document.getElementById('contenedorReporte').innerHTML = '';
   }
 
   async function generarReporte(){
@@ -986,9 +1043,8 @@
         ? (diasCierre.reduce((a, b) => a + b, 0) / diasCierre.length).toFixed(1)
         : '—';
 
-      const porEstado = agruparPor(filas, f => f.estado || 'Pendiente');
+      const porZonaEstado = agruparPorZonaYEstado(filas);
       const porArea = agruparPor(filas, f => f.areaSolicitante);
-      const porZona = agruparPor(filas, f => f.zona);
       const porResponsable = agruparPor(filas, f => f.responsable);
       const porPrioridad = agruparPor(filas, f => normalizarTexto(f.prioridad));
 
@@ -1002,23 +1058,18 @@
         </div>
 
         <div class="chart-card">
-          <h3>Por estado</h3>
+          <h3>Por zona y estado</h3>
           <div class="leyenda-estado">
             <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['Pendiente']};"></span>Pendiente</span>
             <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['En Atención']};"></span>En Atención</span>
             <span><span class="leyenda-punto" style="background:${COLOR_ESTADO['Cerrada']};"></span>Cerrada</span>
           </div>
-          ${renderBarras(porEstado, etiqueta => COLOR_ESTADO[etiqueta])}
+          ${renderBarrasApiladasPorZona(porZonaEstado)}
         </div>
 
         <div class="chart-card">
           <h3>Por área solicitante</h3>
           ${renderBarras(porArea)}
-        </div>
-
-        <div class="chart-card">
-          <h3>Por zona</h3>
-          ${renderBarras(porZona)}
         </div>
 
         <div class="chart-card">
