@@ -403,13 +403,17 @@
 
         <div class="campo">
           <label>Técnico que ejecuta <span class="req">*</span></label>
-          <input type="text" name="tecnicoEjecuta" list="listaTecnicos" autocomplete="off" required>
-          <datalist id="listaTecnicos"></datalist>
+          <select name="tecnicoEjecuta" id="selectTecnicoEjecuta" required>
+            <option value="" disabled selected>Cargando técnicos...</option>
+          </select>
+          <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece el nombre? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
         </div>
         <div class="campo">
           <label>Despachador <span class="req">*</span></label>
-          <input type="text" name="despachador" list="listaDespachadores" autocomplete="off" required>
-          <datalist id="listaDespachadores"></datalist>
+          <select name="despachador" id="selectDespachador" required>
+            <option value="" disabled selected>Cargando despachadores...</option>
+          </select>
+          <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece el nombre? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
         </div>
         <div class="campo">
           <label>Poweron <span class="req">*</span></label>
@@ -526,24 +530,48 @@
     return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores)$/i.test(valor || '');
   }
 
-  function llenarDatalist(idDatalist, nombres){
-    const datalist = document.getElementById(idDatalist);
-    if (datalist) datalist.innerHTML = nombres.map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+  function llenarSelectPersonas(idSelect, nombres){
+    // Llena un <select> con los nombres de la hoja de Google Sheets, obligando a elegir uno de la lista
+    // (a diferencia del datalist anterior, aquí ya no se puede escribir un nombre distinto a mano).
+    const select = document.getElementById(idSelect);
+    if (!select) return;
+    const valorPrevio = select.value;
+    const placeholder = nombres.length > 0 ? 'Selecciona un nombre' : 'No se encontraron nombres en la hoja';
+    // El placeholder lleva "selected" explícito (además de "disabled"): sin esto, algunos navegadores
+    // seleccionan igual la primera opción habilitada por defecto y el required nunca llega a fallar.
+    const opciones = [`<option value="" disabled selected>${escaparHTML(placeholder)}</option>`]
+      .concat(nombres.map(n => `<option value="${escaparHTML(n)}">${escaparHTML(n)}</option>`));
+    select.innerHTML = opciones.join('');
+    if (valorPrevio && nombres.includes(valorPrevio)){
+      select.value = valorPrevio; // conserva la selección si ya había una y el nombre sigue en la lista
+    }
+  }
+
+  function marcarListasPersonas(mensaje){
+    ['selectTecnicoEjecuta', 'selectDespachador'].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) select.innerHTML = `<option value="" disabled selected>${escaparHTML(mensaje)}</option>`;
+    });
   }
 
   async function cargarListasPersonas(){
-    if (!urlConfigurada(CONFIG.urlTecnicos)) return;
+    if (!urlConfigurada(CONFIG.urlTecnicos)){
+      marcarListasPersonas('Falta configurar la hoja de nombres en el HTML (CONFIG.urlTecnicos)');
+      return;
+    }
     try {
       const resp = await fetch(CONFIG.urlTecnicos);
-      if (!resp.ok) return;
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const texto = await resp.text();
       const filas = texto.split(/\r?\n/).map(linea => camposCSV(linea)).filter(campos => campos.some(c => c));
       const nombresTecnicos = filas.map(f => f[0]).filter(n => n && !esEncabezadoLista(n));
       const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
-      llenarDatalist('listaTecnicos', nombresTecnicos);
-      llenarDatalist('listaDespachadores', nombresDespachadores);
+      llenarSelectPersonas('selectTecnicoEjecuta', nombresTecnicos);
+      llenarSelectPersonas('selectDespachador', nombresDespachadores);
     } catch (err) {
-      // si falla la carga, los campos siguen funcionando como texto libre normal, sin sugerencias
+      // Como ahora el nombre es obligatorio desde la lista (ya no se acepta texto libre), si falla la carga
+      // avisamos explícitamente en el propio campo en vez de dejarlo en blanco sin explicación.
+      marcarListasPersonas('No se pudo cargar la lista — usa "Reintentar cargar la lista"');
     }
   }
   cargarListasPersonas();
