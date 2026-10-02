@@ -152,7 +152,10 @@
   .barra-pista{flex:1; background:var(--fondo); border-radius:4px; height:22px;}
   .barra-relleno{height:100%; border-radius:0 4px 4px 0; min-width:3px; position:relative; transition:width .3s ease;}
   .barra-relleno-apilado{display:flex; height:100%; min-width:3px; position:relative;}
-  .segmento-apilado{height:100%;}
+  .segmento-apilado{height:100%; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .segmento-numero{
+    color:#fff; font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none;
+  }
   .barra-numero-adentro{
     position:absolute; right:8px; top:50%; transform:translateY(-50%);
     color:#fff; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none;
@@ -1008,21 +1011,22 @@
       const segmentos = ORDEN_ESTADOS.map(estado => ({ estado, valor: fila[estado] || 0 })).filter(s => s.valor > 0);
       const segmentosHTML = segmentos.map((s, i) => {
         const pctSegmento = fila.total > 0 ? (s.valor / fila.total) * 100 : 0;
+        const pctSegmentoAbsoluto = max > 0 ? (s.valor / max) * 100 : 0;
         const esUltimo = i === segmentos.length - 1;
         const tipSeguro = escaparHTML(`${fila.zona} — ${s.estado}: ${s.valor}`);
+        const numeroSegmentoHTML = pctSegmentoAbsoluto >= UMBRAL_NUMERO_ADENTRO
+          ? `<span class="segmento-numero">${s.valor}</span>` : '';
         return `<div class="segmento-apilado" style="width:${pctSegmento}%; background:${COLOR_ESTADO[s.estado]};${esUltimo ? ' border-radius:0 4px 4px 0;' : ' border-right:2px solid #fff;'}"
                   tabindex="0" role="img" aria-label="${tipSeguro}" data-tooltip="${tipSeguro}"
                   onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
-                  onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()"></div>`;
+                  onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()">${numeroSegmentoHTML}</div>`;
       }).join('');
       const etiquetaSegura = escaparHTML(fila.zona);
-      const numeroHTML = pctTotal >= UMBRAL_NUMERO_ADENTRO
-        ? `<span class="barra-numero-adentro">${fila.total}</span>`
-        : `<span class="barra-numero-afuera">${fila.total}</span>`;
+      const numeroTotalHTML = `<span class="barra-numero-afuera">${fila.total}</span>`;
       return `
         <div class="barra-fila">
           <div class="barra-etiqueta">${etiquetaSegura}</div>
-          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}${numeroHTML}</div></div>
+          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}${numeroTotalHTML}</div></div>
         </div>`;
     }).join('');
   }
