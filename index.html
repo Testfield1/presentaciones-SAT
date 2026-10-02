@@ -164,6 +164,9 @@
     position:absolute; left:100%; top:50%; transform:translateY(-50%); margin-left:6px;
     color:var(--carbon); font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; pointer-events:none;
   }
+  .barra-subetiqueta{display:flex; gap:12px; flex-wrap:wrap; margin-top:4px; font-size:11px; color:var(--gris-oscuro);}
+  .subetiqueta-item{display:inline-flex; align-items:center; gap:4px;}
+  .subetiqueta-punto{width:8px; height:8px; border-radius:2px; display:inline-block; flex-shrink:0;}
   .leyenda-estado{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:12px; color:var(--gris-oscuro);}
   .leyenda-estado span{display:inline-flex; align-items:center; gap:6px;}
   .leyenda-punto{width:10px; height:10px; border-radius:3px; display:inline-block; flex-shrink:0;}
@@ -1009,24 +1012,31 @@
     return datos.map(fila => {
       const pctTotal = max > 0 ? (fila.total / max) * 100 : 0;
       const segmentos = ORDEN_ESTADOS.map(estado => ({ estado, valor: fila[estado] || 0 })).filter(s => s.valor > 0);
+      const ocultos = [];
       const segmentosHTML = segmentos.map((s, i) => {
         const pctSegmento = fila.total > 0 ? (s.valor / fila.total) * 100 : 0;
         const pctSegmentoAbsoluto = max > 0 ? (s.valor / max) * 100 : 0;
         const esUltimo = i === segmentos.length - 1;
         const tipSeguro = escaparHTML(`${fila.zona} — ${s.estado}: ${s.valor}`);
-        const numeroSegmentoHTML = pctSegmentoAbsoluto >= UMBRAL_NUMERO_ADENTRO
-          ? `<span class="segmento-numero">${s.valor}</span>` : '';
+        const cabeAdentro = pctSegmentoAbsoluto >= UMBRAL_NUMERO_ADENTRO;
+        if (!cabeAdentro) ocultos.push(s);
+        const numeroSegmentoHTML = cabeAdentro ? `<span class="segmento-numero">${s.valor}</span>` : '';
         return `<div class="segmento-apilado" style="width:${pctSegmento}%; background:${COLOR_ESTADO[s.estado]};${esUltimo ? ' border-radius:0 4px 4px 0;' : ' border-right:2px solid #fff;'}"
                   tabindex="0" role="img" aria-label="${tipSeguro}" data-tooltip="${tipSeguro}"
                   onmouseenter="mostrarTooltipBarra(event)" onmousemove="moverTooltipBarra(event)" onmouseleave="ocultarTooltipBarra()"
                   onfocus="mostrarTooltipBarra(event)" onblur="ocultarTooltipBarra()">${numeroSegmentoHTML}</div>`;
       }).join('');
       const etiquetaSegura = escaparHTML(fila.zona);
-      const numeroTotalHTML = `<span class="barra-numero-afuera">${fila.total}</span>`;
+      const subetiquetaHTML = ocultos.length > 0
+        ? `<div class="barra-subetiqueta">${ocultos.map(s => `<span class="subetiqueta-item"><span class="subetiqueta-punto" style="background:${COLOR_ESTADO[s.estado]};"></span>${escaparHTML(s.estado)}: ${s.valor}</span>`).join('')}</div>`
+        : '';
       return `
-        <div class="barra-fila">
-          <div class="barra-etiqueta">${etiquetaSegura}</div>
-          <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}${numeroTotalHTML}</div></div>
+        <div class="barra-fila" style="align-items:flex-start;">
+          <div class="barra-etiqueta" style="padding-top:3px;">${etiquetaSegura}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="barra-pista"><div class="barra-relleno-apilado" style="width:${pctTotal}%;">${segmentosHTML}</div></div>
+            ${subetiquetaHTML}
+          </div>
         </div>`;
     }).join('');
   }
