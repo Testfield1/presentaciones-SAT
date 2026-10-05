@@ -271,6 +271,10 @@
             <input type="text" name="detalleDireccion" required>
           </div>
           <div class="campo solo-presentacion">
+            <label>Comuna <span class="req">*</span></label>
+            <input type="text" name="comuna" required>
+          </div>
+          <div class="campo solo-presentacion">
             <label>Nombre suscriptor <span class="req">*</span></label>
             <input type="text" name="nombreSuscriptor" required>
           </div>
@@ -853,7 +857,7 @@
   // --------------------- Exportar a Excel (CSV) ---------------------
   const COLUMNAS_EXPORTAR = [
     ['identificador', 'Identificador'], ['tipoIngreso', 'Tipo de ingreso'], ['estado', 'Estado'], ['zona', 'Zona'], ['areaSolicitante', 'Área solicitante'],
-    ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'],
+    ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'], ['comuna', 'Comuna'],
     ['nombreSuscriptor', 'Nombre suscriptor'], ['apellidoSuscriptor', 'Apellido suscriptor'], ['telefonoCliente', 'Teléfono cliente'],
     ['responsable', 'Responsable'], ['tipoActividad', 'Tipo de actividad'], ['omAviso', 'OM / Aviso'], ['claseActividad', 'Clase de Actividad'],
     ['ubicacionTecnica', 'Ubicación técnica'], ['alimentador', 'Alimentador'], ['equipoReferencia', 'Equipo referencia'], ['rotuloReferencia', 'Rótulo referencia'],
@@ -920,7 +924,7 @@
       ['Trabajos', item.trabajos], ['Comentario', item.comentario]
     ] : [
       ['Zona', item.zona], ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
-      ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion],
+      ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion], ['Comuna', item.comuna],
       ['Nombre suscriptor', item.nombreSuscriptor], ['Apellido suscriptor', item.apellidoSuscriptor],
       ['Teléfono cliente', item.telefonoCliente], ['Responsable', item.responsable],
       ['Alimentador', item.alimentador], ['Punto eléctrico', item.puntoElectrico],
@@ -962,7 +966,7 @@
         <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
           <div>
             <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(esAutogestion ? item.tipoActividad : item.producto)}${fechaCreacion ? ' · ' + fechaCreacion : ''}</div>
-            <div class="item-sub">${esAutogestion ? valorODefecto(item.claseActividad) + ' · ' + valorODefecto(item.zona) : valorODefecto(item.nombreSuscriptor) + ' ' + valorODefecto(item.apellidoSuscriptor, '') + ' · ' + valorODefecto(item.areaSolicitante) + ' · ' + valorODefecto(item.zona)}</div>
+            <div class="item-sub">${esAutogestion ? valorODefecto(item.claseActividad) + ' · ' + valorODefecto(item.zona) : valorODefecto(item.nombreSuscriptor) + ' ' + valorODefecto(item.apellidoSuscriptor, '') + ' · ' + valorODefecto(item.areaSolicitante) + ' · ' + valorODefecto(item.zona) + (item.comuna ? ' - ' + item.comuna : '')}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
             <span class="badge tipo">${tipo}</span>
