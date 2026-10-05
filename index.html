@@ -286,15 +286,15 @@
             <label>Teléfono cliente <span class="req">*</span></label>
             <input type="text" name="telefonoCliente" inputmode="tel" required>
           </div>
-          <div class="campo solo-presentacion">
-            <label>Responsable <span class="req">*</span></label>
-            <select name="responsable" required onchange="actualizarCamposCreacion()">
+          <div class="campo">
+            <label id="labelResponsable">Responsable <span class="req">*</span></label>
+            <select name="responsable" id="selectResponsable" required onchange="actualizarCamposCreacion()">
               <option value="" disabled selected>Selecciona un responsable</option>
               <option value="René Catalán">René Catalán</option>
               <option value="Claudio Silva">Claudio Silva</option>
               <option value="Viviana Zamora">Viviana Zamora</option>
             </select>
-            <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se asigna automáticamente según el área solicitante. Para Mantenimiento puedes elegir entre René Catalán y Viviana Zamora.</div>
+            <div id="notaResponsable" style="font-size:11px; color:var(--gris); margin-top:3px;">Se asigna automáticamente según el área solicitante. Para Mantenimiento puedes elegir entre René Catalán y Viviana Zamora.</div>
           </div>
           <div class="campo full solo-autogestion">
             <label>Tipo de actividad <span class="req">*</span></label>
@@ -547,6 +547,7 @@
   let responsableActual = '';       // responsable asignado a la presentación (se fijó al crearla), usado por el flujo para saber a quién enviar el correo
   let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
   let tipoIngresoActual = '';       // "Presentación" o "Autogestión" (se fijó al crear el registro), usado por el flujo para saber si corresponde enviar el correo de cierre
+  let nombresIngenierosCache = [];  // última lista de ingenieros de mantenimiento cargada desde la 4ª columna de Google Sheets, usada por el selector de "Ingeniero de mantenimiento" en Autogestión
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -584,7 +585,7 @@
   }
 
   function esEncabezadoLista(valor){
-    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades)$/i.test(valor || '');
+    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades|ingeniero de mantenimiento|ingenieros de mantenimiento|ingeniero|ingenieros)$/i.test(valor || '');
   }
 
   function llenarSelectPersonas(idSelect, nombres, placeholders){
@@ -616,6 +617,9 @@
   async function cargarListasPersonas(){
     if (!urlConfigurada(CONFIG.urlTecnicos)){
       marcarListasPersonas('Falta configurar la hoja de nombres en el HTML (CONFIG.urlTecnicos)');
+      if (document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión'){
+        document.getElementById('selectResponsable').innerHTML = '<option value="" disabled selected>Falta configurar la hoja de nombres en el HTML (CONFIG.urlTecnicos)</option>';
+      }
       return;
     }
     try {
@@ -626,13 +630,23 @@
       const nombresTecnicos = filas.map(f => f[0]).filter(n => n && !esEncabezadoLista(n));
       const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
       const tiposActividad = filas.map(f => f[2]).filter(n => n && !esEncabezadoLista(n));
+      const nombresIngenieros = filas.map(f => f[3]).filter(n => n && !esEncabezadoLista(n));
+      nombresIngenierosCache = nombresIngenieros;
       llenarSelectPersonas('selectTecnicoEjecuta', nombresTecnicos);
       llenarSelectPersonas('selectDespachador', nombresDespachadores);
       llenarSelectPersonas('selectTipoActividad', tiposActividad, { encontrado: 'Selecciona un tipo de actividad', vacio: 'No se encontraron tipos de actividad en la hoja' });
+      // Si ya está en modo Autogestión (ej. el usuario reintentó la carga), refresca también
+      // el selector de "Ingeniero de mantenimiento" con la lista recién cargada.
+      if (document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión'){
+        poblarResponsableAutogestion();
+      }
     } catch (err) {
       // Como ahora el nombre es obligatorio desde la lista (ya no se acepta texto libre), si falla la carga
       // avisamos explícitamente en el propio campo en vez de dejarlo en blanco sin explicación.
       marcarListasPersonas('No se pudo cargar la lista — usa "Reintentar cargar la lista"');
+      if (document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión'){
+        document.getElementById('selectResponsable').innerHTML = '<option value="" disabled selected>No se pudo cargar la lista — usa "Reintentar cargar la lista"</option>';
+      }
     }
   }
   cargarListasPersonas();
@@ -672,8 +686,16 @@
       const campo = el.querySelector('input, select, textarea');
       if (campo) campo.required = esAutogestion;
     });
+    // El selector "Responsable" (Presentación) / "Ingeniero de mantenimiento" (Autogestión) es un único
+    // campo compartido (misma columna en SharePoint) que siempre queda visible y obligatorio; lo que
+    // cambia según el tipo de ingreso es su etiqueta, su lista de opciones y de dónde sale esa lista.
+    document.getElementById('labelResponsable').innerHTML = esAutogestion ? 'Ingeniero de mantenimiento <span class="req">*</span>' : 'Responsable <span class="req">*</span>';
+    document.getElementById('notaResponsable').innerHTML = esAutogestion
+      ? 'Selecciona el ingeniero de mantenimiento a cargo. ¿No aparece el nombre? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a>'
+      : 'Se asigna automáticamente según el área solicitante. Para Mantenimiento puedes elegir entre René Catalán y Viviana Zamora.';
     if (esAutogestion){
-      // Autogestión no pregunta Área solicitante ni Responsable (se completan solos al guardar),
+      poblarResponsableAutogestion();
+      // Autogestión no pregunta Área solicitante (se completa sola al guardar),
       // así que tampoco corresponde pedir las fotos de respaldo de poda.
       document.querySelectorAll('#formCrear .solo-vegetacion').forEach(el => {
         el.style.display = 'none';
@@ -681,8 +703,24 @@
         if (campo) campo.required = false;
       });
     } else {
+      restaurarResponsablePresentacion();
       actualizarResponsablePorArea(); // restaura las reglas de Presentación (responsable según área, fotos de vegetación)
     }
+  }
+
+  function poblarResponsableAutogestion(){
+    // Usa la 4ª columna de la hoja de Google Sheets (independiente de técnicos/despachadores/tipos
+    // de actividad) para que el ingeniero de mantenimiento se elija de su propia lista.
+    llenarSelectPersonas('selectResponsable', nombresIngenierosCache, { encontrado: 'Selecciona un ingeniero de mantenimiento', vacio: 'No se encontraron ingenieros de mantenimiento en la hoja' });
+  }
+
+  function restaurarResponsablePresentacion(){
+    // Vuelve a dejar las 3 opciones fijas de Presentación (no dependen de la hoja de Google Sheets).
+    document.getElementById('selectResponsable').innerHTML =
+      '<option value="" disabled selected>Selecciona un responsable</option>' +
+      '<option value="René Catalán">René Catalán</option>' +
+      '<option value="Claudio Silva">Claudio Silva</option>' +
+      '<option value="Viviana Zamora">Viviana Zamora</option>';
   }
 
   function actualizarResponsablePorArea(){
@@ -701,7 +739,10 @@
   }
 
   function actualizarCamposCreacion(){
-    const esVegetacion = document.querySelector('#formCrear select[name="responsable"]').value === 'Claudio Silva';
+    const esAutogestion = document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión';
+    // En Autogestión el selector "Responsable" en realidad lista técnicos (Ingeniero de mantenimiento),
+    // así que nunca corresponde activar la lógica de fotos de vegetación aunque coincida algún nombre.
+    const esVegetacion = !esAutogestion && document.querySelector('#formCrear select[name="responsable"]').value === 'Claudio Silva';
     document.querySelectorAll('#formCrear .solo-vegetacion').forEach(el => {
       el.style.display = esVegetacion ? 'flex' : 'none';
       const campo = el.querySelector('input, select, textarea');
@@ -917,7 +958,7 @@
     const esAutogestion = tipo === 'Autogestión';
 
     const filasDetalle = esAutogestion ? [
-      ['Zona', item.zona], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
+      ['Zona', item.zona], ['Ingeniero de mantenimiento', item.responsable], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
       ['Clase de Actividad', item.claseActividad], ['Ubicación técnica', item.ubicacionTecnica],
       ['Alimentador', item.alimentador], ['Equipo referencia', item.equipoReferencia],
       ['Rótulo referencia', item.rotuloReferencia], ['Fecha de ingreso', item.fechaIngreso],
