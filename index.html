@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestión de Presentaciones SAT</title>
+<title>Gestión de Presentación y Autogestión SAT</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
@@ -121,6 +121,7 @@
   .badge.pendiente{background:#fdf3e3; color:var(--ambar);}
   .badge.atencion{background:#e0edff; color:var(--azul);}
   .badge.cerrada{background:#e7f7ee; color:var(--verde);}
+  .badge.tipo{background:#eef0f3; color:var(--gris-oscuro);}
 
   .detalle{
     margin-top:12px; padding-top:12px; border-top:1px solid var(--gris-claro);
@@ -189,6 +190,7 @@
   .modal .grid{margin-bottom:4px;}
   .solo-atencion{display:none;}
   .solo-vegetacion{display:none;}
+  .solo-autogestion{display:none;}
 
   footer{text-align:center; font-size:11.5px; color:var(--gris); padding:20px 10px 30px;}
 </style>
@@ -200,27 +202,34 @@
     <img src="data:image/png;base64,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" alt="Chilquinta Distribución" style="height:28px; width:auto; display:block;">
   </div>
   <div>
-    <h1>Gestión de Presentaciones SAT</h1>
+    <h1>Gestión de Presentación y Autogestión SAT</h1>
     <p>Solicitudes de apoyo en terreno</p>
   </div>
 </header>
 
 <nav class="tabs">
-  <button id="tabCrearBtn" class="activo" onclick="cambiarVista('crear')">Nueva presentación</button>
+  <button id="tabCrearBtn" class="activo" onclick="cambiarVista('crear')">Nueva presentación/Autogestión</button>
   <button id="tabListaBtn" onclick="cambiarVista('lista')">Seguimiento</button>
   <button id="tabReporteBtn" onclick="cambiarVista('reporte')">Reporte</button>
 </nav>
 
 <main>
 
-  <!-- ===================== VISTA: NUEVA PRESENTACIÓN ===================== -->
+  <!-- ===================== VISTA: NUEVA PRESENTACIÓN / AUTOGESTIÓN ===================== -->
   <section id="vistaCrear" class="vista activa">
     <div class="tarjeta">
-      <h2>Datos de la presentación</h2>
+      <h2 id="tituloFormularioCrear">Datos de la presentación</h2>
       <div id="mensajeCrear" class="mensaje"></div>
       <form id="formCrear" onsubmit="return enviarCreacion(event)">
         <div class="grid">
-          <div class="campo">
+          <div class="campo full">
+            <label>Tipo de Ingreso <span class="req">*</span></label>
+            <select name="tipoIngreso" required onchange="actualizarTipoIngreso()">
+              <option value="Presentación" selected>Presentación</option>
+              <option value="Autogestión">Autogestión</option>
+            </select>
+          </div>
+          <div class="campo solo-presentacion">
             <label>Área solicitante <span class="req">*</span></label>
             <select name="areaSolicitante" required onchange="actualizarResponsablePorArea()">
               <option value="" disabled selected>Selecciona un área</option>
@@ -229,7 +238,7 @@
               <option value="Empalme">Empalme</option>
             </select>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Identificador <span class="req">*</span></label>
             <input type="text" name="identificador" required>
           </div>
@@ -245,35 +254,35 @@
               <option value="Marga Marga">Marga Marga</option>
             </select>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Producto <span class="req">*</span></label>
             <input type="text" name="producto" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Prioridad <span class="req">*</span></label>
             <input type="text" name="prioridad" placeholder="Ej: Alta / Media / Baja" required>
           </div>
-          <div class="campo full">
+          <div class="campo full solo-presentacion">
             <label>Ubicación geográfica <span class="req">*</span></label>
             <input type="text" name="ubicacionGeografica" required>
           </div>
-          <div class="campo full">
+          <div class="campo full solo-presentacion">
             <label>Detalle dirección <span class="req">*</span></label>
             <input type="text" name="detalleDireccion" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Nombre suscriptor <span class="req">*</span></label>
             <input type="text" name="nombreSuscriptor" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Apellido suscriptor <span class="req">*</span></label>
             <input type="text" name="apellidoSuscriptor" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Teléfono cliente <span class="req">*</span></label>
             <input type="text" name="telefonoCliente" inputmode="tel" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Responsable <span class="req">*</span></label>
             <select name="responsable" required onchange="actualizarCamposCreacion()">
               <option value="" disabled selected>Selecciona un responsable</option>
@@ -283,11 +292,39 @@
             </select>
             <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se asigna automáticamente según el área solicitante. Para Mantenimiento puedes elegir entre René Catalán y Viviana Zamora.</div>
           </div>
+          <div class="campo full solo-autogestion">
+            <label>Tipo de actividad <span class="req">*</span></label>
+            <select name="tipoActividad" id="selectTipoActividad">
+              <option value="" disabled selected>Cargando tipos de actividad...</option>
+            </select>
+            <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece la opción? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
+          </div>
+          <div class="campo solo-autogestion">
+            <label>OM / Aviso <span class="req">*</span></label>
+            <input type="text" name="omAviso">
+            <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se usa además como identificador de esta autogestión.</div>
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Clase de Actividad <span class="req">*</span></label>
+            <input type="text" name="claseActividad">
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Ubicación técnica <span class="req">*</span></label>
+            <input type="text" name="ubicacionTecnica">
+          </div>
           <div class="campo">
             <label>Alimentador <span class="req">*</span></label>
             <input type="text" name="alimentador" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-autogestion">
+            <label>Equipo referencia <span class="req">*</span></label>
+            <input type="text" name="equipoReferencia">
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Rótulo referencia <span class="req">*</span></label>
+            <input type="text" name="rotuloReferencia">
+          </div>
+          <div class="campo solo-presentacion">
             <label>Punto eléctrico <span class="req">*</span></label>
             <input type="text" name="puntoElectrico" required>
           </div>
@@ -295,17 +332,21 @@
             <label>Fecha de ingreso <span class="req">*</span></label>
             <input type="date" name="fechaIngreso" required>
           </div>
-          <div class="campo">
+          <div class="campo solo-presentacion">
             <label>Fecha máx. respuesta <span class="req">*</span></label>
             <input type="date" name="fechaMaxRespuesta" required>
           </div>
-          <div class="campo full">
+          <div class="campo full solo-presentacion">
             <label>Gestión despacho <span class="req">*</span></label>
             <input type="text" name="gestionDespacho" required>
           </div>
-          <div class="campo full">
+          <div class="campo full solo-presentacion">
             <label>Trabajo a realizar SAT <span class="req">*</span></label>
             <textarea name="trabajoARealizarSAT" required></textarea>
+          </div>
+          <div class="campo full solo-autogestion">
+            <label>Trabajos <span class="req">*</span></label>
+            <textarea name="trabajos"></textarea>
           </div>
           <div class="campo full">
             <label>Comentario <span class="req">*</span></label>
@@ -321,8 +362,8 @@
           </div>
         </div>
         <div class="btn-fila">
-          <button type="reset" class="btn btn-secundario" onclick="setTimeout(actualizarResponsablePorArea, 0)">Limpiar</button>
-          <button type="submit" id="btnCrear" class="btn btn-primario">Guardar presentación</button>
+          <button type="reset" class="btn btn-secundario" onclick="setTimeout(actualizarTipoIngreso, 0)">Limpiar</button>
+          <button type="submit" id="btnCrear" class="btn btn-primario">Guardar</button>
         </div>
       </form>
     </div>
@@ -331,13 +372,18 @@
   <!-- ===================== VISTA: SEGUIMIENTO / LISTADO ===================== -->
   <section id="vistaLista" class="vista">
     <div class="barra-herramientas">
-      <input type="text" id="buscador" placeholder="Buscar por identificador, suscriptor, producto o área..." oninput="renderLista()">
+      <input type="text" id="buscador" placeholder="Buscar por identificador, suscriptor, producto, área u OM/Aviso..." oninput="renderLista()">
       <div class="filtros">
         <button class="activo" data-filtro="todas" onclick="setFiltro('todas')">Todas</button>
         <button data-filtro="Pendiente" onclick="setFiltro('Pendiente')">Pendientes</button>
         <button data-filtro="En Atención" onclick="setFiltro('En Atención')">En Atención</button>
         <button data-filtro="Cerrada" onclick="setFiltro('Cerrada')">Cerradas</button>
       </div>
+      <select id="filtroTipo" onchange="renderLista()">
+        <option value="todos">Presentación y Autogestión</option>
+        <option value="Presentación">Solo presentación</option>
+        <option value="Autogestión">Solo autogestión</option>
+      </select>
       <select id="filtroZona" onchange="renderLista()">
         <option value="todas">Todas las zonas</option>
         <option value="Aconcagua">Aconcagua</option>
@@ -470,7 +516,7 @@
   </div>
 </div>
 
-<footer>Gestión de Presentaciones SAT · Chilquinta</footer>
+<footer>Gestión de Presentación y Autogestión SAT · Chilquinta</footer>
 
 <div id="tooltipBarra" class="tooltip-barra"></div>
 
@@ -496,6 +542,7 @@
   let historialAtencionActual = ''; // historial de comentarios "En Atención" ya guardados en el registro que se está cerrando
   let responsableActual = '';       // responsable asignado a la presentación (se fijó al crearla), usado por el flujo para saber a quién enviar el correo
   let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
+  let tipoIngresoActual = '';       // "Presentación" o "Autogestión" (se fijó al crear el registro), usado por el flujo para saber si corresponde enviar el correo de cierre
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -533,16 +580,18 @@
   }
 
   function esEncabezadoLista(valor){
-    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores)$/i.test(valor || '');
+    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades)$/i.test(valor || '');
   }
 
-  function llenarSelectPersonas(idSelect, nombres){
-    // Llena un <select> con los nombres de la hoja de Google Sheets, obligando a elegir uno de la lista
-    // (a diferencia del datalist anterior, aquí ya no se puede escribir un nombre distinto a mano).
+  function llenarSelectPersonas(idSelect, nombres, placeholders){
+    // Llena un <select> con valores de la hoja de Google Sheets, obligando a elegir uno de la lista
+    // (a diferencia del datalist anterior, aquí ya no se puede escribir algo distinto a mano).
+    // "placeholders" permite ajustar el texto para listas que no son de nombres (ej. tipo de actividad).
     const select = document.getElementById(idSelect);
     if (!select) return;
     const valorPrevio = select.value;
-    const placeholder = nombres.length > 0 ? 'Selecciona un nombre' : 'No se encontraron nombres en la hoja';
+    const textos = placeholders || { encontrado: 'Selecciona un nombre', vacio: 'No se encontraron nombres en la hoja' };
+    const placeholder = nombres.length > 0 ? textos.encontrado : textos.vacio;
     // El placeholder lleva "selected" explícito (además de "disabled"): sin esto, algunos navegadores
     // seleccionan igual la primera opción habilitada por defecto y el required nunca llega a fallar.
     const opciones = [`<option value="" disabled selected>${escaparHTML(placeholder)}</option>`]
@@ -554,7 +603,7 @@
   }
 
   function marcarListasPersonas(mensaje){
-    ['selectTecnicoEjecuta', 'selectDespachador'].forEach(id => {
+    ['selectTecnicoEjecuta', 'selectDespachador', 'selectTipoActividad'].forEach(id => {
       const select = document.getElementById(id);
       if (select) select.innerHTML = `<option value="" disabled selected>${escaparHTML(mensaje)}</option>`;
     });
@@ -572,8 +621,10 @@
       const filas = texto.split(/\r?\n/).map(linea => camposCSV(linea)).filter(campos => campos.some(c => c));
       const nombresTecnicos = filas.map(f => f[0]).filter(n => n && !esEncabezadoLista(n));
       const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
+      const tiposActividad = filas.map(f => f[2]).filter(n => n && !esEncabezadoLista(n));
       llenarSelectPersonas('selectTecnicoEjecuta', nombresTecnicos);
       llenarSelectPersonas('selectDespachador', nombresDespachadores);
+      llenarSelectPersonas('selectTipoActividad', tiposActividad, { encontrado: 'Selecciona un tipo de actividad', vacio: 'No se encontraron tipos de actividad en la hoja' });
     } catch (err) {
       // Como ahora el nombre es obligatorio desde la lista (ya no se acepta texto libre), si falla la carga
       // avisamos explícitamente en el propio campo en vez de dejarlo en blanco sin explicación.
@@ -595,12 +646,40 @@
     return url && !url.startsWith('PEGA_AQUI');
   }
 
-  // --------------------- Crear presentación ---------------------
+  // --------------------- Crear presentación / autogestión ---------------------
   const MAPA_RESPONSABLE_POR_AREA = {
     'Mantenimiento': ['René Catalán', 'Viviana Zamora'],
     'Manejo de vegetación': ['Claudio Silva'],
     'Empalme': ['Viviana Zamora']
   };
+
+  function actualizarTipoIngreso(){
+    const tipo = document.querySelector('#formCrear select[name="tipoIngreso"]').value;
+    const esAutogestion = tipo === 'Autogestión';
+    document.getElementById('tituloFormularioCrear').textContent = esAutogestion ? 'Datos de la autogestión' : 'Datos de la presentación';
+    document.getElementById('btnCrear').textContent = esAutogestion ? 'Guardar autogestión' : 'Guardar presentación';
+    document.querySelectorAll('#formCrear .solo-presentacion').forEach(el => {
+      el.style.display = esAutogestion ? 'none' : 'flex';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = !esAutogestion;
+    });
+    document.querySelectorAll('#formCrear .solo-autogestion').forEach(el => {
+      el.style.display = esAutogestion ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esAutogestion;
+    });
+    if (esAutogestion){
+      // Autogestión no pregunta Área solicitante ni Responsable (se completan solos al guardar),
+      // así que tampoco corresponde pedir las fotos de respaldo de poda.
+      document.querySelectorAll('#formCrear .solo-vegetacion').forEach(el => {
+        el.style.display = 'none';
+        const campo = el.querySelector('input, select, textarea');
+        if (campo) campo.required = false;
+      });
+    } else {
+      actualizarResponsablePorArea(); // restaura las reglas de Presentación (responsable según área, fotos de vegetación)
+    }
+  }
 
   function actualizarResponsablePorArea(){
     const area = document.querySelector('#formCrear select[name="areaSolicitante"]').value;
@@ -638,8 +717,19 @@
     delete datos.fotoSolicitud1;
     delete datos.fotoSolicitud2;
 
-    const esVegetacion = form.elements['responsable'].value === 'Claudio Silva';
+    const esAutogestion = form.elements['tipoIngreso'].value === 'Autogestión';
+    if (esAutogestion){
+      // La autogestión la ingresa personal de Mantenimiento y no pide Área solicitante:
+      // se completa sola para que el reporte "Por área solicitante" la siga contabilizando.
+      datos.areaSolicitante = 'Mantenimiento';
+      // No hay campo "Identificador" en Autogestión: se usa el OM/Aviso para que el listado,
+      // el detalle y los adjuntos de SharePoint tengan igual con qué identificar el registro.
+      datos.identificador = datos.omAviso;
+    }
+
+    const esVegetacion = !esAutogestion && form.elements['responsable'].value === 'Claudio Silva';
     const boton = document.getElementById('btnCrear');
+    const textoGuardar = esAutogestion ? 'Guardar autogestión' : 'Guardar presentación';
 
     if (esVegetacion){
       const archivo1 = form.elements['fotoSolicitud1'].files[0];
@@ -655,7 +745,7 @@
         datos.fotoSolicitud2 = fotoSolicitud2;
       } catch (err) {
         mostrarMensaje('mensajeCrear', 'No se pudieron procesar las fotografías.', 'error');
-        boton.disabled = false; boton.textContent = 'Guardar presentación';
+        boton.disabled = false; boton.textContent = textoGuardar;
         return false;
       }
     }
@@ -669,17 +759,17 @@
       });
       const resultado = await resp.json().catch(() => ({}));
       if (resp.ok && resultado.resultado !== 'error'){
-        mostrarMensaje('mensajeCrear', 'Presentación guardada correctamente.', 'ok');
+        mostrarMensaje('mensajeCrear', esAutogestion ? 'Autogestión guardada correctamente.' : 'Presentación guardada correctamente.', 'ok');
         form.reset();
-        actualizarResponsablePorArea();
+        actualizarTipoIngreso();
         datosLista = []; // fuerza recarga la próxima vez que se abra el listado
       } else {
-        mostrarMensaje('mensajeCrear', resultado.mensaje || 'No se pudo guardar la presentación.', 'error');
+        mostrarMensaje('mensajeCrear', resultado.mensaje || 'No se pudo guardar.', 'error');
       }
     } catch (err) {
       mostrarMensaje('mensajeCrear', 'Error de conexión con el flujo. Revisa la URL y el CORS del flujo de escritura.', 'error');
     } finally {
-      boton.disabled = false; boton.textContent = 'Guardar presentación';
+      boton.disabled = false; boton.textContent = textoGuardar;
     }
     return false;
   }
@@ -730,12 +820,14 @@
   function filasFiltradas(){
     const texto = document.getElementById('buscador').value.trim().toLowerCase();
     const zona = document.getElementById('filtroZona').value;
+    const tipo = document.getElementById('filtroTipo').value;
     const orden = document.getElementById('ordenLista').value;
     const filas = datosLista.filter(item => {
       if (filtroEstado !== 'todas' && (item.estado || 'Pendiente') !== filtroEstado) return false;
       if (zona !== 'todas' && item.zona !== zona) return false;
+      if (tipo !== 'todos' && (item.tipoIngreso || 'Presentación') !== tipo) return false;
       if (!texto) return true;
-      const campos = [item.identificador, item.producto, item.nombreSuscriptor, item.apellidoSuscriptor, item.areaSolicitante];
+      const campos = [item.identificador, item.producto, item.nombreSuscriptor, item.apellidoSuscriptor, item.areaSolicitante, item.omAviso, item.tipoActividad];
       return campos.some(c => (c || '').toString().toLowerCase().includes(texto));
     });
     filas.sort((a, b) => {
@@ -760,12 +852,14 @@
 
   // --------------------- Exportar a Excel (CSV) ---------------------
   const COLUMNAS_EXPORTAR = [
-    ['identificador', 'Identificador'], ['estado', 'Estado'], ['zona', 'Zona'], ['areaSolicitante', 'Área solicitante'],
+    ['identificador', 'Identificador'], ['tipoIngreso', 'Tipo de ingreso'], ['estado', 'Estado'], ['zona', 'Zona'], ['areaSolicitante', 'Área solicitante'],
     ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'],
     ['nombreSuscriptor', 'Nombre suscriptor'], ['apellidoSuscriptor', 'Apellido suscriptor'], ['telefonoCliente', 'Teléfono cliente'],
-    ['responsable', 'Responsable'], ['alimentador', 'Alimentador'], ['puntoElectrico', 'Punto eléctrico'],
+    ['responsable', 'Responsable'], ['tipoActividad', 'Tipo de actividad'], ['omAviso', 'OM / Aviso'], ['claseActividad', 'Clase de Actividad'],
+    ['ubicacionTecnica', 'Ubicación técnica'], ['alimentador', 'Alimentador'], ['equipoReferencia', 'Equipo referencia'], ['rotuloReferencia', 'Rótulo referencia'],
+    ['puntoElectrico', 'Punto eléctrico'],
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
-    ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['comentario', 'Comentario'],
+    ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['trabajos', 'Trabajos'], ['comentario', 'Comentario'],
     ['tecnicoEjecuta', 'Técnico que ejecuta'], ['despachador', 'Despachador'], ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
     ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
   ];
@@ -815,8 +909,16 @@
     if (estado === 'Cerrada') claseBadge = 'cerrada';
     else if (estado === 'En Atención') claseBadge = 'atencion';
     const idUnico = 'item_' + indice;
+    const tipo = item.tipoIngreso || 'Presentación';
+    const esAutogestion = tipo === 'Autogestión';
 
-    const filasDetalle = [
+    const filasDetalle = esAutogestion ? [
+      ['Zona', item.zona], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
+      ['Clase de Actividad', item.claseActividad], ['Ubicación técnica', item.ubicacionTecnica],
+      ['Alimentador', item.alimentador], ['Equipo referencia', item.equipoReferencia],
+      ['Rótulo referencia', item.rotuloReferencia], ['Fecha de ingreso', item.fechaIngreso],
+      ['Trabajos', item.trabajos], ['Comentario', item.comentario]
+    ] : [
       ['Zona', item.zona], ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
       ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion],
       ['Nombre suscriptor', item.nombreSuscriptor], ['Apellido suscriptor', item.apellidoSuscriptor],
@@ -859,10 +961,13 @@
       <div class="item">
         <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
           <div>
-            <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(item.producto)}${fechaCreacion ? ' · ' + fechaCreacion : ''}</div>
-            <div class="item-sub">${valorODefecto(item.nombreSuscriptor)} ${valorODefecto(item.apellidoSuscriptor, '')} · ${valorODefecto(item.areaSolicitante)} · ${valorODefecto(item.zona)}</div>
+            <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(esAutogestion ? item.tipoActividad : item.producto)}${fechaCreacion ? ' · ' + fechaCreacion : ''}</div>
+            <div class="item-sub">${esAutogestion ? valorODefecto(item.claseActividad) + ' · ' + valorODefecto(item.zona) : valorODefecto(item.nombreSuscriptor) + ' ' + valorODefecto(item.apellidoSuscriptor, '') + ' · ' + valorODefecto(item.areaSolicitante) + ' · ' + valorODefecto(item.zona)}</div>
           </div>
-          <span class="badge ${claseBadge}">${estado}</span>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <span class="badge tipo">${tipo}</span>
+            <span class="badge ${claseBadge}">${estado}</span>
+          </div>
         </div>
         <div class="detalle" id="${idUnico}">
           <dl>${dl}${bloqueCierre}</dl>
@@ -1121,10 +1226,13 @@
         : '—';
 
       const porZonaEstado = agruparPorZonaYEstado(filas);
+      const porTipoIngreso = agruparPor(filas, f => f.tipoIngreso || 'Presentación');
       const porArea = agruparPor(filas, f => f.areaSolicitante);
       const porResponsable = agruparPor(filas, f => f.responsable);
       const porPrioridad = agruparPor(filas, f => normalizarTexto(f.prioridad));
       const porTecnico = agruparPorTecnico(filas, 'todas');
+      const filasAutogestion = filas.filter(f => (f.tipoIngreso || 'Presentación') === 'Autogestión');
+      const porTipoActividad = agruparPor(filasAutogestion, f => f.tipoActividad);
 
       contenedor.innerHTML = `
         <div class="stat-grid">
@@ -1133,6 +1241,11 @@
           <div class="stat-tile"><div class="stat-label">En atención</div><div class="stat-valor">${enAtencion.length}</div></div>
           <div class="stat-tile"><div class="stat-label">Pendientes</div><div class="stat-valor">${pendientes.length}</div></div>
           <div class="stat-tile"><div class="stat-label">Días promedio de cierre</div><div class="stat-valor">${promedioCierre}</div></div>
+        </div>
+
+        <div class="chart-card">
+          <h3>Por tipo de ingreso</h3>
+          ${renderBarras(porTipoIngreso)}
         </div>
 
         <div class="chart-card">
@@ -1158,6 +1271,12 @@
         <div class="chart-card">
           <h3>Por prioridad</h3>
           ${renderBarras(porPrioridad)}
+        </div>
+
+        <div class="chart-card">
+          <h3>Por tipo de actividad (Autogestión)</h3>
+          <div style="font-size:11.5px; color:var(--gris); margin-bottom:12px;">Solo incluye registros de Autogestión.</div>
+          ${renderBarras(porTipoActividad)}
         </div>
 
         <div class="chart-card">
@@ -1248,6 +1367,7 @@
     historialAtencionActual = (item && item.comentarioAtencion) ? item.comentarioAtencion : '';
     responsableActual = (item && item.responsable) ? item.responsable : '';
     identificadorActual = (item && item.identificador) ? item.identificador : '';
+    tipoIngresoActual = (item && item.tipoIngreso) ? item.tipoIngreso : 'Presentación';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
@@ -1261,6 +1381,7 @@
     historialAtencionActual = '';
     responsableActual = '';
     identificadorActual = '';
+    tipoIngresoActual = '';
   }
 
   async function enviarCierre(evento){
@@ -1280,7 +1401,8 @@
       clave: form.elements['clave'].value,
       marcaTiempo: Date.now().toString(), // para que cada tanda de fotos quede con nombre único en SharePoint
       responsable: responsableActual, // para que el flujo sepa a quién enviarle el correo al cerrar definitivamente
-      identificador: identificadorActual // para el asunto del correo y el nombre de los archivos adjuntos
+      identificador: identificadorActual, // para el asunto del correo y el nombre de los archivos adjuntos
+      tipoIngreso: tipoIngresoActual // para que el flujo sepa si corresponde enviar el correo de cierre (no aplica a Autogestión)
     };
 
     // ---- Campos operativos: iguales en los dos estados ----
