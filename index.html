@@ -1302,10 +1302,13 @@
       const mostrarPorTipoIngreso = tipoSeleccionado === 'todos';
       const mostrarPorPrioridad = tipoSeleccionado !== 'Autogestión';
       const mostrarPorTipoActividad = tipoSeleccionado !== 'Presentación';
+      const etiquetaTotal = tipoSeleccionado === 'Autogestión' ? 'Total autogestión'
+        : tipoSeleccionado === 'Presentación' ? 'Total presentaciones'
+        : 'Total presentaciones y autogestión';
 
       contenedor.innerHTML = `
         <div class="stat-grid">
-          <div class="stat-tile"><div class="stat-label">Total presentaciones</div><div class="stat-valor">${total}</div></div>
+          <div class="stat-tile"><div class="stat-label">${etiquetaTotal}</div><div class="stat-valor">${total}</div></div>
           <div class="stat-tile"><div class="stat-label">Cerradas</div><div class="stat-valor">${cerradas.length}</div></div>
           <div class="stat-tile"><div class="stat-label">En atención</div><div class="stat-valor">${enAtencion.length}</div></div>
           <div class="stat-tile"><div class="stat-label">Pendientes</div><div class="stat-valor">${pendientes.length}</div></div>
