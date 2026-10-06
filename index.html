@@ -191,6 +191,7 @@
   .solo-atencion{display:none;}
   .solo-vegetacion{display:none;}
   .solo-autogestion{display:none;}
+  .solo-autogestion-cierre{display:none;}
 
   footer{text-align:center; font-size:11.5px; color:var(--gris); padding:20px 10px 30px;}
 </style>
@@ -434,7 +435,7 @@
 <!-- ===================== MODAL: CERRAR TAREA ===================== -->
 <div class="overlay" id="overlayCierre">
   <div class="modal">
-    <h3>Cerrar presentación</h3>
+    <h3 id="tituloModalCierre">Cerrar presentación</h3>
     <p class="sub" id="cierreSubtitulo">Solo supervisor / administración.</p>
     <div id="mensajeCierre" class="mensaje"></div>
     <form id="formCierre" onsubmit="return enviarCierre(event)">
@@ -486,6 +487,10 @@
         <div class="campo full">
           <label>Probatorias <span class="req">*</span></label>
           <input type="text" name="probatorias" required>
+        </div>
+        <div class="campo full solo-autogestion-cierre">
+          <label>Permiso utilizado (PT/PP/PE) <span class="req">*</span></label>
+          <input type="text" name="permisoUtilizado">
         </div>
         <div class="campo full solo-cerrada">
           <label>Observaciones de cierre definitivo <span class="req">*</span></label>
@@ -906,7 +911,7 @@
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
     ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['trabajos', 'Trabajos'], ['comentario', 'Comentario'],
     ['tecnicoEjecuta', 'Técnico que ejecuta'], ['despachador', 'Despachador'], ['poweron', 'Poweron'], ['ejecutadoSiNo', 'Ejecutado SI/NO'], ['fechaTrabajo', 'Fecha trabajo'],
-    ['probatorias', 'PROBATORIAS'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
+    ['probatorias', 'PROBATORIAS'], ['permisoUtilizado', 'Permiso utilizado (PT/PP/PE)'], ['observaciones', 'Observaciones'], ['comentarioAtencion', 'Historial En Atención']
   ];
 
   function exportarExcel(){
@@ -980,8 +985,12 @@
         ['Técnico que ejecuta', item.tecnicoEjecuta], ['Despachador', item.despachador],
         ['Poweron', item.poweron], ['Ejecutado SI/NO', item.ejecutadoSiNo],
         ['Fecha trabajo', item.fechaTrabajo],
-        ['Probatorias', item.probatorias], ['Observaciones', item.observaciones]
+        ['Probatorias', item.probatorias]
       ];
+      if (esAutogestion){
+        filasCierre.push(['Permiso utilizado (PT/PP/PE)', item.permisoUtilizado]);
+      }
+      filasCierre.push(['Observaciones', item.observaciones]);
       if (item.comentarioAtencion){
         filasCierre.push(['Historial "En Atención"', item.comentarioAtencion.replace(/\n/g, '<br>')]);
       }
@@ -1391,6 +1400,16 @@
       if (campo) campo.required = esAtencion;
     });
 
+    // "Permiso utilizado (PT/PP/PE)" solo se pide al cerrar una Autogestión (en cualquiera de los
+    // dos tipos de cierre, definitivo o "En Atención"), usando el tipo de registro que se fijó al
+    // abrir el modal (tipoIngresoActual).
+    const esAutogestionCierre = tipoIngresoActual === 'Autogestión';
+    document.querySelectorAll('#formCierre .solo-autogestion-cierre').forEach(el => {
+      el.style.display = esAutogestionCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esAutogestionCierre;
+    });
+
     const bloqueHistorial = document.getElementById('bloqueHistorialAtencion');
     if (!esAtencion && historialAtencionActual){
       bloqueHistorial.style.display = '';
@@ -1413,6 +1432,7 @@
     responsableActual = (item && item.responsable) ? item.responsable : '';
     identificadorActual = (item && item.identificador) ? item.identificador : '';
     tipoIngresoActual = (item && item.tipoIngreso) ? item.tipoIngreso : 'Presentación';
+    document.getElementById('tituloModalCierre').textContent = (tipoIngresoActual === 'Autogestión') ? 'Cerrar autogestión' : 'Cerrar presentación';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
@@ -1457,6 +1477,8 @@
     datos.ejecutadoSiNo = form.elements['ejecutadoSiNo'].value;
     datos.fechaTrabajo = form.elements['fechaTrabajo'].value;
     datos.probatorias = form.elements['probatorias'].value;
+    // Solo se pide (y se ve) en el cierre de una Autogestión; en Presentación queda como texto vacío.
+    datos.permisoUtilizado = form.elements['permisoUtilizado'].value;
 
     // ---- Lo único distinto entre los dos estados es el comentario ----
     if (esAtencion){
