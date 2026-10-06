@@ -271,7 +271,7 @@
             <label>Detalle dirección <span class="req">*</span></label>
             <input type="text" name="detalleDireccion" required>
           </div>
-          <div class="campo solo-presentacion">
+          <div class="campo">
             <label>Comuna <span class="req">*</span></label>
             <input type="text" name="comuna" required>
           </div>
@@ -968,7 +968,7 @@
     const esAutogestion = tipo === 'Autogestión';
 
     const filasDetalle = esAutogestion ? [
-      ['Zona', item.zona], ['Ingeniero de mantenimiento', item.responsable], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
+      ['Zona', item.zona], ['Comuna', item.comuna], ['Ingeniero de mantenimiento', item.responsable], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
       ['Clase de Actividad', item.claseActividad], ['Ubicación técnica', item.ubicacionTecnica],
       ['Alimentador', item.alimentador], ['Equipo referencia', item.equipoReferencia],
       ['Rótulo referencia', item.rotuloReferencia], ['Fecha de ingreso', item.fechaIngreso],
@@ -1021,7 +1021,7 @@
         <div class="item-cabecera" onclick="toggleDetalle('${idUnico}')">
           <div>
             <div class="item-id">${valorODefecto(item.identificador)} · ${valorODefecto(esAutogestion ? item.tipoActividad : item.producto)}${fechaCreacion ? ' · ' + fechaCreacion : ''}</div>
-            <div class="item-sub">${esAutogestion ? valorODefecto(item.claseActividad) + ' · ' + valorODefecto(item.zona) : valorODefecto(item.nombreSuscriptor) + ' ' + valorODefecto(item.apellidoSuscriptor, '') + ' · ' + valorODefecto(item.areaSolicitante) + ' · ' + valorODefecto(item.zona) + (item.comuna ? ' - ' + item.comuna : '')}</div>
+            <div class="item-sub">${esAutogestion ? valorODefecto(item.claseActividad) + ' · ' + valorODefecto(item.zona) + (item.comuna ? ' - ' + item.comuna : '') : valorODefecto(item.nombreSuscriptor) + ' ' + valorODefecto(item.apellidoSuscriptor, '') + ' · ' + valorODefecto(item.areaSolicitante) + ' · ' + valorODefecto(item.zona) + (item.comuna ? ' - ' + item.comuna : '')}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
             <span class="badge tipo">${tipo}</span>
