@@ -422,6 +422,11 @@
         </select>
         <input type="date" id="reporteDesde" style="display:none;">
         <input type="date" id="reporteHasta" style="display:none;">
+        <select id="tipoReporte">
+          <option value="todos" selected>Todos (Presentación + Autogestión)</option>
+          <option value="Presentación">Solo Presentación</option>
+          <option value="Autogestión">Solo Autogestión</option>
+        </select>
         <button id="btnGenerarReporte" class="btn btn-primario" onclick="generarReporte()">Generar reporte</button>
         <button type="button" id="btnLimpiarReporte" class="btn btn-secundario" onclick="limpiarReporte()">Limpiar reporte</button>
       </div>
@@ -1229,6 +1234,7 @@
     document.getElementById('rangoReporte').value = 'todo';
     document.getElementById('reporteDesde').value = '';
     document.getElementById('reporteHasta').value = '';
+    document.getElementById('tipoReporte').value = 'todos';
     actualizarRangoPersonalizado();
     document.getElementById('mensajeReporte').className = 'mensaje';
     document.getElementById('contenedorReporte').innerHTML = '';
@@ -1251,18 +1257,21 @@
       }
 
       const { desde, hasta } = rangoFechasReporte();
+      const tipoSeleccionado = document.getElementById('tipoReporte').value; // 'todos' | 'Presentación' | 'Autogestión'
       const filas = datosLista.filter(item => {
         const fecha = item.fechaIngreso;
         if (!fecha) return false;
         if (desde && fecha < desde) return false;
         if (hasta && fecha > hasta) return false;
+        if (tipoSeleccionado !== 'todos' && (item.tipoIngreso || 'Presentación') !== tipoSeleccionado) return false;
         return true;
       });
 
       if (filas.length === 0){
         contenedor.innerHTML = '';
         ultimasFilasReporte = [];
-        mostrarMensaje('mensajeReporte', 'No hay presentaciones con fecha de ingreso dentro del período seleccionado.', 'error');
+        const sufijoTipo = tipoSeleccionado === 'todos' ? '' : ` de tipo "${tipoSeleccionado}"`;
+        mostrarMensaje('mensajeReporte', `No hay presentaciones${sufijoTipo} con fecha de ingreso dentro del período seleccionado.`, 'error');
         return;
       }
 
@@ -1288,6 +1297,12 @@
       const filasAutogestion = filas.filter(f => (f.tipoIngreso || 'Presentación') === 'Autogestión');
       const porTipoActividad = agruparPor(filasAutogestion, f => f.tipoActividad);
 
+      // Con "Todos" se muestran los 3 gráficos; al filtrar a un solo tipo, se ocultan los gráficos
+      // que no le corresponden a ese tipo (quedaría un solo valor sin información útil).
+      const mostrarPorTipoIngreso = tipoSeleccionado === 'todos';
+      const mostrarPorPrioridad = tipoSeleccionado !== 'Autogestión';
+      const mostrarPorTipoActividad = tipoSeleccionado !== 'Presentación';
+
       contenedor.innerHTML = `
         <div class="stat-grid">
           <div class="stat-tile"><div class="stat-label">Total presentaciones</div><div class="stat-valor">${total}</div></div>
@@ -1297,10 +1312,12 @@
           <div class="stat-tile"><div class="stat-label">Días promedio de cierre</div><div class="stat-valor">${promedioCierre}</div></div>
         </div>
 
+        ${mostrarPorTipoIngreso ? `
         <div class="chart-card">
           <h3>Por tipo de ingreso</h3>
           ${renderBarras(porTipoIngreso)}
         </div>
+        ` : ''}
 
         <div class="chart-card">
           <h3>Por zona y estado</h3>
@@ -1322,16 +1339,20 @@
           ${renderBarras(porResponsable)}
         </div>
 
+        ${mostrarPorPrioridad ? `
         <div class="chart-card">
           <h3>Por prioridad</h3>
           ${renderBarras(porPrioridad)}
         </div>
+        ` : ''}
 
+        ${mostrarPorTipoActividad ? `
         <div class="chart-card">
           <h3>Por tipo de actividad (Autogestión)</h3>
           <div style="font-size:11.5px; color:var(--gris); margin-bottom:12px;">Solo incluye registros de Autogestión.</div>
           ${renderBarras(porTipoActividad)}
         </div>
+        ` : ''}
 
         <div class="chart-card">
           <h3>Actividades por técnico</h3>
