@@ -273,7 +273,10 @@
           </div>
           <div class="campo">
             <label>Comuna <span class="req">*</span></label>
-            <input type="text" name="comuna" required>
+            <select name="comuna" id="selectComuna" required>
+              <option value="" disabled selected>Cargando comunas...</option>
+            </select>
+            <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece la comuna? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
           </div>
           <div class="campo solo-presentacion">
             <label>Nombre suscriptor <span class="req">*</span></label>
@@ -558,6 +561,7 @@
   let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
   let tipoIngresoActual = '';       // "Presentación" o "Autogestión" (se fijó al crear el registro), usado por el flujo para saber si corresponde enviar el correo de cierre
   let nombresIngenierosCache = [];  // última lista de ingenieros de mantenimiento cargada desde la 4ª columna de Google Sheets, usada por el selector de "Ingeniero de mantenimiento" en Autogestión
+  let comunasCache = [];             // última lista de comunas cargada desde la 5ª columna de Google Sheets, usada por el selector de "Comuna"
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -595,7 +599,7 @@
   }
 
   function esEncabezadoLista(valor){
-    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades|ingeniero de mantenimiento|ingenieros de mantenimiento|ingeniero|ingenieros)$/i.test(valor || '');
+    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades|ingeniero de mantenimiento|ingenieros de mantenimiento|ingeniero|ingenieros|comuna|comunas)$/i.test(valor || '');
   }
 
   function llenarSelectPersonas(idSelect, nombres, placeholders){
@@ -618,7 +622,7 @@
   }
 
   function marcarListasPersonas(mensaje){
-    ['selectTecnicoEjecuta', 'selectDespachador', 'selectTipoActividad'].forEach(id => {
+    ['selectTecnicoEjecuta', 'selectDespachador', 'selectTipoActividad', 'selectComuna'].forEach(id => {
       const select = document.getElementById(id);
       if (select) select.innerHTML = `<option value="" disabled selected>${escaparHTML(mensaje)}</option>`;
     });
@@ -641,10 +645,13 @@
       const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
       const tiposActividad = filas.map(f => f[2]).filter(n => n && !esEncabezadoLista(n));
       const nombresIngenieros = filas.map(f => f[3]).filter(n => n && !esEncabezadoLista(n));
+      const comunas = filas.map(f => f[4]).filter(n => n && !esEncabezadoLista(n));
       nombresIngenierosCache = nombresIngenieros;
+      comunasCache = comunas;
       llenarSelectPersonas('selectTecnicoEjecuta', nombresTecnicos);
       llenarSelectPersonas('selectDespachador', nombresDespachadores);
       llenarSelectPersonas('selectTipoActividad', tiposActividad, { encontrado: 'Selecciona un tipo de actividad', vacio: 'No se encontraron tipos de actividad en la hoja' });
+      llenarSelectPersonas('selectComuna', comunas, { encontrado: 'Selecciona una comuna', vacio: 'No se encontraron comunas en la hoja' });
       // Si ya está en modo Autogestión (ej. el usuario reintentó la carga), refresca también
       // el selector de "Ingeniero de mantenimiento" con la lista recién cargada.
       if (document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión'){
