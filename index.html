@@ -522,7 +522,13 @@
         </div>
         <div class="campo full">
           <label>Contraseña de cierre <span class="req">*</span></label>
-          <input type="password" name="clave" required>
+          <div style="position:relative;">
+            <input type="password" name="clave" id="inputClave" required style="width:100%; padding-right:38px;">
+            <button type="button" onclick="alternarClave()" aria-label="Mostrar u ocultar contraseña" style="position:absolute; right:2px; top:0; bottom:0; width:34px; background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--gris-oscuro);">
+              <svg id="iconoClaveMostrar" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="iconoClaveOcultar" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
         </div>
       </div>
       <div class="btn-fila">
@@ -1467,6 +1473,9 @@
     zonaActual = (item && item.zona) ? item.zona : '';
     document.getElementById('tituloModalCierre').textContent = (tipoIngresoActual === 'Autogestión') ? 'Cerrar autogestión' : 'Cerrar presentación';
     document.getElementById('formCierre').reset();
+    document.getElementById('inputClave').type = 'password';
+    document.getElementById('iconoClaveMostrar').style.display = '';
+    document.getElementById('iconoClaveOcultar').style.display = 'none';
     document.getElementById('mensajeCierre').className = 'mensaje';
     actualizarCamposCierre();
     cargarListasPersonas(); // refresca las listas de técnicos y despachadores por si se editó la hoja de Google Sheets
@@ -1481,6 +1490,16 @@
     identificadorActual = '';
     tipoIngresoActual = '';
     zonaActual = '';
+  }
+
+  function alternarClave(){
+    const input = document.getElementById('inputClave');
+    const mostrar = document.getElementById('iconoClaveMostrar');
+    const ocultar = document.getElementById('iconoClaveOcultar');
+    const seMuestra = input.type === 'text';
+    input.type = seMuestra ? 'password' : 'text';
+    mostrar.style.display = seMuestra ? '' : 'none';
+    ocultar.style.display = seMuestra ? 'none' : '';
   }
 
   async function enviarCierre(evento){
