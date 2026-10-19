@@ -560,6 +560,7 @@
   let responsableActual = '';       // responsable asignado a la presentación (se fijó al crearla), usado por el flujo para saber a quién enviar el correo
   let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
   let tipoIngresoActual = '';       // "Presentación" o "Autogestión" (se fijó al crear el registro), usado por el flujo para saber si corresponde enviar el correo de cierre
+  let zonaActual = '';              // zona del registro que se está cerrando, usada por el flujo para agregar en copia a alguien según la zona (ej. Valparaíso)
   let nombresIngenierosCache = [];  // última lista de ingenieros de mantenimiento cargada desde la 4ª columna de Google Sheets, usada por el selector de "Ingeniero de mantenimiento" en Autogestión
   let comunasCache = [];             // última lista de comunas cargada desde la 5ª columna de Google Sheets, usada por el selector de "Comuna"
 
@@ -1463,6 +1464,7 @@
     responsableActual = (item && item.responsable) ? item.responsable : '';
     identificadorActual = (item && item.identificador) ? item.identificador : '';
     tipoIngresoActual = (item && item.tipoIngreso) ? item.tipoIngreso : 'Presentación';
+    zonaActual = (item && item.zona) ? item.zona : '';
     document.getElementById('tituloModalCierre').textContent = (tipoIngresoActual === 'Autogestión') ? 'Cerrar autogestión' : 'Cerrar presentación';
     document.getElementById('formCierre').reset();
     document.getElementById('mensajeCierre').className = 'mensaje';
@@ -1478,6 +1480,7 @@
     responsableActual = '';
     identificadorActual = '';
     tipoIngresoActual = '';
+    zonaActual = '';
   }
 
   async function enviarCierre(evento){
@@ -1498,7 +1501,8 @@
       marcaTiempo: Date.now().toString(), // para que cada tanda de fotos quede con nombre único en SharePoint
       responsable: responsableActual, // para que el flujo sepa a quién enviarle el correo al cerrar definitivamente
       identificador: identificadorActual, // para el asunto del correo y el nombre de los archivos adjuntos
-      tipoIngreso: tipoIngresoActual // para que el flujo sepa si corresponde enviar el correo de cierre (no aplica a Autogestión)
+      tipoIngreso: tipoIngresoActual, // para que el flujo sepa si corresponde enviar el correo de cierre (no aplica a Autogestión)
+      zona: zonaActual // para que el flujo pueda agregar en copia a alguien según la zona (ej. Valparaíso)
     };
 
     // ---- Campos operativos: iguales en los dos estados ----
