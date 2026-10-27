@@ -368,13 +368,6 @@
             </select>
           </div>
           <div class="campo solo-autogestion">
-            <label>Solicitante <span class="req">*</span></label>
-            <select name="solicitante" id="selectSolicitante">
-              <option value="" disabled selected>Cargando solicitantes...</option>
-            </select>
-            <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece el nombre? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
-          </div>
-          <div class="campo solo-autogestion">
             <label>Área <span class="req">*</span></label>
             <input type="text" name="area">
           </div>
@@ -400,7 +393,7 @@
             <input type="text" name="contacto" placeholder="Nombre y teléfono de contacto en terreno">
           </div>
           <div class="campo solo-autogestion">
-            <label>Fecha de ejecución <span class="req">*</span></label>
+            <label>Fecha estimada de cierre <span class="req">*</span></label>
             <input type="date" name="fechaEjecucion">
           </div>
           <div class="campo solo-presentacion">
@@ -1259,7 +1252,7 @@
     ['responsable', 'Responsable'], ['solicitante', 'Solicitante'], ['empresa', 'Empresa'], ['area', 'Área'], ['tipoActividad', 'Tipo de actividad'], ['omAviso', 'OM / Aviso'], ['claseActividad', 'Clase de Actividad'],
     ['ubicacionTecnica', 'Ubicación Técnica'], ['contacto', 'Contacto'], ['alimentador', 'Alimentador'], ['sed', 'Sed / Equipo'], ['equipoReferencia', 'Equipo referencia'], ['rotuloReferencia', 'Rótulo referencia'],
     ['fechaInspeccion', 'Fecha de Inspección'], ['detalleHallazgos', 'Detalle de Hallazgos'],
-    ['fechaEjecucion', 'Fecha de ejecución'], ['fechaInstalacion', 'Fecha de Instalación'], ['horaInstalacion', 'Hora de Instalación'],
+    ['fechaEjecucion', 'Fecha estimada de cierre'], ['fechaInstalacion', 'Fecha de Instalación'], ['horaInstalacion', 'Hora de Instalación'],
     ['detalleSeparadoresBT', 'Detalle separadores BT'], ['resumenSeparadoresBT', 'Resumen de separadores BT'],
     ['numeroClienteRotuloPoste', 'Número de cliente / Rótulo de poste'], ['equipoSonelInstalado', 'Equipo Sonel instalado'],
     ['detalleMedicionesAltura', 'Detalle Trabajo ejecutado'],
@@ -1321,19 +1314,18 @@
     const tipo = item.tipoIngreso || 'Presentación';
     const esAutogestion = tipo === 'Autogestión';
 
-    // Desde el rediseño de creación unificada, "Área", "Sed / Equipo" y "Fecha de ejecución" se piden
-    // igual en las 6 plantillas de Autogestión. "Empresa" y "Permiso Preventivo" se retiraron del
-    // formulario de creación (ya no se piden para ninguna plantilla).
+    // Desde el rediseño de creación unificada, "Área", "Sed / Equipo" y "Fecha estimada de cierre" se piden
+    // igual en las 6 plantillas de Autogestión. "Empresa", "Permiso Preventivo" y "Solicitante" se
+    // retiraron del formulario de creación (ya no se piden para ninguna plantilla).
     const filasDetalle = esAutogestion ? [
       ['Zona', item.zona], ['Comuna', item.comuna], ['Ingeniero de mantenimiento', item.responsable],
-      ['Solicitante', item.solicitante],
       ['Área', item.area],
       ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
       ['Ubicación Técnica', item.ubicacionTecnica],
       ['Alimentador', item.alimentador],
       ['Sed / Equipo', item.sed],
       ['Contacto', item.contacto],
-      ['Fecha de ejecución', item.fechaEjecucion],
+      ['Fecha estimada de cierre', item.fechaEjecucion],
       ['Fecha de ingreso', item.fechaIngreso],
       ['Detalle trabajos solicitado', item.trabajos],
       ['Comentario', item.comentario]
