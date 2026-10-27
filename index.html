@@ -192,6 +192,61 @@
   .solo-vegetacion{display:none;}
   .solo-autogestion{display:none;}
   .solo-autogestion-cierre{display:none;}
+  .solo-equilibrios-cierre{display:none;}
+  .solo-refuerzos-cierre{display:none;}
+  .solo-detalleejecutado-cierre{display:none;}
+  .solo-inspeccionvisual-cierre{display:none;}
+  .solo-sepbt-cierre{display:none;}
+  .solo-medicionaltura-cierre{display:none;}
+  .solo-retirosonel-cierre{display:none;}
+  .solo-fechainstalacion-cierre{display:none;}
+  [data-tipos]{display:none;}
+  .fila-hallazgo{
+    display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-hallazgo label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-hallazgo input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-hallazgo .btn-quitar-hallazgo{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap;}
+  @media (max-width:700px){ .fila-hallazgo{grid-template-columns:1fr 1fr;} }
+  .fila-separador{
+    display:grid; grid-template-columns:2fr 1fr auto; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-separador label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-separador input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-separador .btn-quitar-separador{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap;}
+  @media (max-width:700px){ .fila-separador{grid-template-columns:1fr 1fr;} }
+  .fila-medicion{
+    display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-medicion label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-medicion input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-medicion .btn-quitar-medicion{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap;}
+  @media (max-width:700px){ .fila-medicion{grid-template-columns:1fr 1fr;} }
+  .tabla-mediciones-td{width:100%; border-collapse:collapse; margin-top:4px;}
+  .tabla-mediciones-td th, .tabla-mediciones-td td{border:1px solid var(--gris-claro); padding:5px 6px; font-size:12px; text-align:center;}
+  .tabla-mediciones-td th{background:#fafafa; font-weight:600; color:var(--gris-oscuro);}
+  .tabla-mediciones-td td:first-child{font-weight:600; color:var(--gris-oscuro); background:#fafafa;}
+  .tabla-mediciones-td input{width:100%; border:1px solid var(--gris-claro); border-radius:5px; padding:5px 6px; font-size:12.5px; font-family:inherit; text-align:center;}
+  @media (max-width:700px){ .tabla-mediciones-td{font-size:11px;} .tabla-mediciones-td th, .tabla-mediciones-td td{padding:4px;} }
+  .fila-nis{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-nis > div{flex:1 1 110px; min-width:110px;}
+  .fila-nis label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-nis input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-nis .btn-quitar-nis{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap; flex:0 0 auto;}
+  .fila-medicion-rotulo{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-medicion-rotulo > div{flex:1 1 95px; min-width:95px;}
+  .fila-medicion-rotulo label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-medicion-rotulo input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-medicion-rotulo .btn-quitar-medicion-rotulo{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap; flex:0 0 auto;}
 
   footer{text-align:center; font-size:11.5px; color:var(--gris); padding:20px 10px 30px;}
 </style>
@@ -302,35 +357,51 @@
           </div>
           <div class="campo full solo-autogestion">
             <label>Tipo de actividad <span class="req">*</span></label>
-            <select name="tipoActividad" id="selectTipoActividad">
-              <option value="" disabled selected>Cargando tipos de actividad...</option>
+            <select name="tipoActividad" id="selectTipoActividad" onchange="actualizarCamposTipoActividad()">
+              <option value="" disabled selected>Selecciona un tipo de actividad</option>
+              <option value="Inspecciones Visuales">Inspecciones Visuales</option>
+              <option value="Instalación de separadores BT">Instalación de separadores BT</option>
+              <option value="Instalación-Retiro de Sonel">Instalación-Retiro de Sonel</option>
+              <option value="Mediciones de altura">Mediciones de altura</option>
+              <option value="Equilibrios de carga">Equilibrios de carga</option>
+              <option value="Refuerzos y Verificación de puentes BT">Refuerzos y Verificación de puentes BT</option>
             </select>
-            <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece la opción? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Solicitante <span class="req">*</span></label>
+            <select name="solicitante" id="selectSolicitante">
+              <option value="" disabled selected>Cargando solicitantes...</option>
+            </select>
+            <div style="font-size:11px; color:var(--gris); margin-top:3px;">¿No aparece el nombre? <a href="#" onclick="cargarListasPersonas(); return false;">Reintentar cargar la lista</a></div>
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Área <span class="req">*</span></label>
+            <input type="text" name="area">
           </div>
           <div class="campo solo-autogestion">
             <label>OM / Aviso <span class="req">*</span></label>
             <input type="text" name="omAviso">
             <div style="font-size:11px; color:var(--gris); margin-top:3px;">Se usa además como identificador de esta autogestión.</div>
           </div>
-          <div class="campo solo-autogestion">
-            <label>Clase de Actividad <span class="req">*</span></label>
-            <input type="text" name="claseActividad">
-          </div>
-          <div class="campo solo-autogestion">
-            <label>Ubicación técnica <span class="req">*</span></label>
-            <input type="text" name="ubicacionTecnica">
-          </div>
           <div class="campo">
             <label>Alimentador <span class="req">*</span></label>
             <input type="text" name="alimentador" required>
           </div>
           <div class="campo solo-autogestion">
-            <label>Equipo referencia <span class="req">*</span></label>
-            <input type="text" name="equipoReferencia">
+            <label>Sed / Equipo <span class="req">*</span></label>
+            <input type="text" name="sed">
           </div>
           <div class="campo solo-autogestion">
-            <label>Rótulo referencia <span class="req">*</span></label>
-            <input type="text" name="rotuloReferencia">
+            <label>Ubicación Técnica <span class="req">*</span></label>
+            <input type="text" name="ubicacionTecnica" placeholder="Ej: UT-205">
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Contacto <span class="req">*</span></label>
+            <input type="text" name="contacto" placeholder="Nombre y teléfono de contacto en terreno">
+          </div>
+          <div class="campo solo-autogestion">
+            <label>Fecha de ejecución <span class="req">*</span></label>
+            <input type="date" name="fechaEjecucion">
           </div>
           <div class="campo solo-presentacion">
             <label>Punto eléctrico <span class="req">*</span></label>
@@ -353,8 +424,8 @@
             <textarea name="trabajoARealizarSAT" required></textarea>
           </div>
           <div class="campo full solo-autogestion">
-            <label>Trabajos <span class="req">*</span></label>
-            <textarea name="trabajos"></textarea>
+            <label>Detalle trabajos solicitado <span class="req">*</span></label>
+            <textarea name="trabajos" placeholder="Desglose a detalle de los trabajos a ejecutar. Detalle completo de lo que se requiere realizar."></textarea>
           </div>
           <div class="campo full">
             <label>Comentario <span class="req">*</span></label>
@@ -500,6 +571,71 @@
           <label>Permiso utilizado (PT/PP/PE) <span class="req">*</span></label>
           <input type="text" name="permisoUtilizado">
         </div>
+        <div class="campo full solo-inspeccionvisual-cierre">
+          <label>Detalle de Hallazgos <span class="req">*</span></label>
+          <div id="contenedorHallazgos"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaHallazgo()">+ Agregar hallazgo</button>
+        </div>
+        <div class="campo solo-fechainstalacion-cierre">
+          <label>Fecha de Instalación <span class="req">*</span></label>
+          <input type="date" name="fechaInstalacion">
+        </div>
+        <div class="campo solo-fechainstalacion-cierre">
+          <label>Hora de Instalación <span class="req">*</span></label>
+          <input type="text" name="horaInstalacion" placeholder="Ej: 09:30">
+        </div>
+        <div class="campo full solo-sepbt-cierre">
+          <label>Detalle separadores BT <span class="req">*</span></label>
+          <div id="contenedorSeparadores"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaSeparador()">+ Agregar separador</button>
+          <div id="resumenSeparadoresTexto" style="font-size:12px; color:var(--gris-oscuro); margin-top:6px; font-weight:600;"></div>
+        </div>
+        <div class="campo full solo-medicionaltura-cierre">
+          <label>Detalle Trabajo ejecutado <span class="req">*</span></label>
+          <div id="contenedorMediciones"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaMedicion()">+ Agregar medición</button>
+        </div>
+        <div class="campo solo-retirosonel-cierre">
+          <label>Número de cliente / Rótulo de poste <span class="req">*</span></label>
+          <input type="text" name="numeroClienteRotuloPoste">
+        </div>
+        <div class="campo solo-retirosonel-cierre">
+          <label>Equipo Sonel instalado <span class="req">*</span></label>
+          <input type="text" name="equipoSonelInstalado" placeholder="Ej: PQM-710 (BR0166)">
+        </div>
+        <div class="campo full solo-equilibrios-cierre">
+          <label>Mediciones TD (antes y después) <span class="req">*</span></label>
+          <table class="tabla-mediciones-td">
+            <thead>
+              <tr><th></th><th>Antes — Circuito A</th><th>Antes — Circuito B</th><th>Después — Circuito A</th><th>Después — Circuito B</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Hora</td><td><input type="text" id="tdAntesAHora"></td><td><input type="text" id="tdAntesBHora"></td><td><input type="text" id="tdDespuesAHora"></td><td><input type="text" id="tdDespuesBHora"></td></tr>
+              <tr><td>Fase 1</td><td><input type="text" id="tdAntesAFase1"></td><td><input type="text" id="tdAntesBFase1"></td><td><input type="text" id="tdDespuesAFase1"></td><td><input type="text" id="tdDespuesBFase1"></td></tr>
+              <tr><td>Fase 2</td><td><input type="text" id="tdAntesAFase2"></td><td><input type="text" id="tdAntesBFase2"></td><td><input type="text" id="tdDespuesAFase2"></td><td><input type="text" id="tdDespuesBFase2"></td></tr>
+              <tr><td>Fase 3</td><td><input type="text" id="tdAntesAFase3"></td><td><input type="text" id="tdAntesBFase3"></td><td><input type="text" id="tdDespuesAFase3"></td><td><input type="text" id="tdDespuesBFase3"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="campo full solo-equilibrios-cierre">
+          <label>Desglose por NIS/medidor <span class="req">*</span></label>
+          <div id="contenedorDesgloseNis"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaDesgloseNis()">+ Agregar registro</button>
+        </div>
+        <div class="campo full solo-refuerzos-cierre">
+          <label>Mediciones — Antes <span class="req">*</span></label>
+          <div id="contenedorMedicionesAntes"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaMedicionAntes()">+ Agregar rótulo</button>
+        </div>
+        <div class="campo full solo-refuerzos-cierre">
+          <label>Mediciones — Después <span class="req">*</span></label>
+          <div id="contenedorMedicionesDespues"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaMedicionDespues()">+ Agregar rótulo</button>
+        </div>
+        <div class="campo full solo-detalleejecutado-cierre">
+          <label>Detalle Ejecutado <span class="req">*</span></label>
+          <textarea name="detalleEjecutado" placeholder="Ej: Traspaso de 5 empalmes Fase Blanca a fase Roja; traspaso de 3 empalmes fase Azul a fase Roja"></textarea>
+        </div>
         <div class="campo full solo-cerrada">
           <label>Observaciones de cierre definitivo <span class="req">*</span></label>
           <textarea name="observaciones"></textarea>
@@ -567,8 +703,11 @@
   let identificadorActual = '';     // identificador de la presentación (se fijó al crearla), usado por el flujo para el asunto del correo y el nombre de los archivos adjuntos
   let tipoIngresoActual = '';       // "Presentación" o "Autogestión" (se fijó al crear el registro), usado por el flujo para saber si corresponde enviar el correo de cierre
   let zonaActual = '';              // zona del registro que se está cerrando, usada por el flujo para agregar en copia a alguien según la zona (ej. Valparaíso)
+  let tipoActividadActual = '';     // tipo de actividad de la Autogestión que se está cerrando (ej. "Equilibrios de carga"), usado para mostrar los campos propios de esa plantilla en el modal de cierre
   let nombresIngenierosCache = [];  // última lista de ingenieros de mantenimiento cargada desde la 4ª columna de Google Sheets, usada por el selector de "Ingeniero de mantenimiento" en Autogestión
   let comunasCache = [];             // última lista de comunas cargada desde la 5ª columna de Google Sheets, usada por el selector de "Comuna"
+  let empresasCache = [];            // última lista de empresas cargada desde la 6ª columna de Google Sheets, usada por el selector de "Empresa" en Autogestión
+  let solicitantesCache = [];        // combinación (sin duplicados) de técnicos + ingenieros de mantenimiento, usada por el selector de "Solicitante" en Autogestión
 
   // --------------------- Navegación entre pestañas ---------------------
   function cambiarVista(vista){
@@ -606,7 +745,7 @@
   }
 
   function esEncabezadoLista(valor){
-    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades|ingeniero de mantenimiento|ingenieros de mantenimiento|ingeniero|ingenieros|comuna|comunas)$/i.test(valor || '');
+    return /^(nombre|nombres|t[eé]cnico|t[eé]cnicos|despachador|despachadores|tipo de actividad|tipos de actividad|actividad|actividades|ingeniero de mantenimiento|ingenieros de mantenimiento|ingeniero|ingenieros|comuna|comunas|empresa|empresas|solicitante|solicitantes)$/i.test(valor || '');
   }
 
   function llenarSelectPersonas(idSelect, nombres, placeholders){
@@ -629,7 +768,7 @@
   }
 
   function marcarListasPersonas(mensaje){
-    ['selectTecnicoEjecuta', 'selectDespachador', 'selectTipoActividad', 'selectComuna'].forEach(id => {
+    ['selectTecnicoEjecuta', 'selectDespachador', 'selectComuna', 'selectEmpresa', 'selectSolicitante'].forEach(id => {
       const select = document.getElementById(id);
       if (select) select.innerHTML = `<option value="" disabled selected>${escaparHTML(mensaje)}</option>`;
     });
@@ -650,15 +789,20 @@
       const filas = texto.split(/\r?\n/).map(linea => camposCSV(linea)).filter(campos => campos.some(c => c));
       const nombresTecnicos = filas.map(f => f[0]).filter(n => n && !esEncabezadoLista(n));
       const nombresDespachadores = filas.map(f => f[1]).filter(n => n && !esEncabezadoLista(n));
-      const tiposActividad = filas.map(f => f[2]).filter(n => n && !esEncabezadoLista(n));
       const nombresIngenieros = filas.map(f => f[3]).filter(n => n && !esEncabezadoLista(n));
       const comunas = filas.map(f => f[4]).filter(n => n && !esEncabezadoLista(n));
+      const empresas = filas.map(f => f[5]).filter(n => n && !esEncabezadoLista(n));
       nombresIngenierosCache = nombresIngenieros;
       comunasCache = comunas;
+      empresasCache = empresas;
+      // "Solicitante" combina técnicos + ingenieros de mantenimiento (son 2 listas distintas, pero cualquiera
+      // de los dos puede solicitar una autogestión), sin duplicados y en orden alfabético.
+      solicitantesCache = [...new Set([...nombresTecnicos, ...nombresIngenieros])].sort((a, b) => a.localeCompare(b, 'es'));
       llenarSelectPersonas('selectTecnicoEjecuta', nombresTecnicos);
       llenarSelectPersonas('selectDespachador', nombresDespachadores);
-      llenarSelectPersonas('selectTipoActividad', tiposActividad, { encontrado: 'Selecciona un tipo de actividad', vacio: 'No se encontraron tipos de actividad en la hoja' });
       llenarSelectPersonas('selectComuna', comunas, { encontrado: 'Selecciona una comuna', vacio: 'No se encontraron comunas en la hoja' });
+      llenarSelectPersonas('selectEmpresa', empresas, { encontrado: 'Selecciona una empresa', vacio: 'No se encontraron empresas en la hoja' });
+      llenarSelectPersonas('selectSolicitante', solicitantesCache, { encontrado: 'Selecciona un solicitante', vacio: 'No se encontraron solicitantes en la hoja' });
       // Si ya está en modo Autogestión (ej. el usuario reintentó la carga), refresca también
       // el selector de "Ingeniero de mantenimiento" con la lista recién cargada.
       if (document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión'){
@@ -730,7 +874,195 @@
       restaurarResponsablePresentacion();
       actualizarResponsablePorArea(); // restaura las reglas de Presentación (responsable según área, fotos de vegetación)
     }
+    actualizarCamposTipoActividad();
   }
+
+  function actualizarCamposTipoActividad(){
+    // Desde el rediseño que unificó la creación de las 6 plantillas, el formulario de creación ya no
+    // tiene ningún campo exclusivo de un subconjunto de tipos de actividad (ni siquiera "Permiso
+    // Preventivo", que se retiró del todo). Todo lo que antes variaba por plantilla (Hallazgos,
+    // Separadores BT, Mediciones, Número de cliente/Rótulo de poste, Equipo Sonel instalado, fechas de
+    // instalación) pasó al cierre, porque es evidencia de trabajo ejecutado, no información que el
+    // ingeniero conozca de antemano al crear la autogestión (ver actualizarCamposCierre()). Esta
+    // función queda como punto de extensión por si en el futuro se vuelve a necesitar un campo de
+    // creación exclusivo de algún tipo de actividad (marcándolo en el HTML con data-tipos).
+    document.querySelectorAll('#formCrear [data-tipos]').forEach(el => {
+      const esAutogestion = document.querySelector('#formCrear select[name="tipoIngreso"]').value === 'Autogestión';
+      const tipoActividad = document.getElementById('selectTipoActividad').value;
+      const tipos = el.dataset.tipos.split('|');
+      const activo = esAutogestion && tipos.includes(tipoActividad);
+      el.style.display = activo ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = activo;
+    });
+  }
+
+  function agregarFilaHallazgo(){
+    const div = document.createElement('div');
+    div.className = 'fila-hallazgo';
+    div.innerHTML =
+      '<div><label>Equipo o Sed</label><input type="text" class="hallazgo-equipo"></div>' +
+      '<div><label>Hallazgo</label><input type="text" class="hallazgo-detalle"></div>' +
+      '<div><label>Rótulo de referencia</label><input type="text" class="hallazgo-rotulo"></div>' +
+      '<div><label>Tipo de Red</label><input type="text" class="hallazgo-tipored" placeholder="Ej: MT - Desnuda"></div>' +
+      '<button type="button" class="btn-quitar-hallazgo" onclick="this.closest(\'.fila-hallazgo\').remove()">Quitar</button>';
+    document.getElementById('contenedorHallazgos').appendChild(div);
+  }
+
+  function recolectarHallazgos(){
+    const filas = Array.from(document.querySelectorAll('#contenedorHallazgos .fila-hallazgo'));
+    const lineas = [];
+    filas.forEach(fila => {
+      const equipo = fila.querySelector('.hallazgo-equipo').value.trim();
+      const hallazgo = fila.querySelector('.hallazgo-detalle').value.trim();
+      const rotulo = fila.querySelector('.hallazgo-rotulo').value.trim();
+      const tipoRed = fila.querySelector('.hallazgo-tipored').value.trim();
+      if (!equipo && !hallazgo && !rotulo && !tipoRed) return; // omite filas completamente vacías
+      lineas.push(`${lineas.length + 1}) Equipo/Sed: ${equipo || '—'} | Hallazgo: ${hallazgo || '—'} | Rótulo de referencia: ${rotulo || '—'} | Tipo de Red: ${tipoRed || '—'}`);
+    });
+    return lineas.join('\n');
+  }
+
+  function agregarFilaSeparador(){
+    const div = document.createElement('div');
+    div.className = 'fila-separador';
+    div.innerHTML =
+      '<div><label>Entre Rótulos</label><input type="text" class="separador-rotulos" placeholder="Ej: PR/123456 y PR/123458"></div>' +
+      '<div><label>Cantidad</label><input type="number" min="0" step="1" class="separador-cantidad" oninput="actualizarResumenSeparadoresTexto()"></div>' +
+      '<button type="button" class="btn-quitar-separador" onclick="this.closest(\'.fila-separador\').remove(); actualizarResumenSeparadoresTexto();">Quitar</button>';
+    document.getElementById('contenedorSeparadores').appendChild(div);
+    actualizarResumenSeparadoresTexto();
+  }
+
+  function recolectarSeparadores(){
+    const filas = Array.from(document.querySelectorAll('#contenedorSeparadores .fila-separador'));
+    const lineas = [];
+    let total = 0;
+    filas.forEach(fila => {
+      const rotulos = fila.querySelector('.separador-rotulos').value.trim();
+      const cantidadTexto = fila.querySelector('.separador-cantidad').value.trim();
+      const cantidad = parseInt(cantidadTexto, 10);
+      if (!rotulos && !cantidadTexto) return; // omite filas completamente vacías
+      if (!isNaN(cantidad)) total += cantidad;
+      lineas.push(`${lineas.length + 1}) Entre Rótulos: ${rotulos || '—'} | Cantidad: ${isNaN(cantidad) ? '—' : cantidad}`);
+    });
+    return { detalle: lineas.join('\n'), total };
+  }
+
+  function actualizarResumenSeparadoresTexto(){
+    const { total } = recolectarSeparadores();
+    const span = document.getElementById('resumenSeparadoresTexto');
+    if (span) span.textContent = `Resumen de separadores BT: ${total}`;
+  }
+
+  function agregarFilaMedicion(){
+    const div = document.createElement('div');
+    div.className = 'fila-medicion';
+    div.innerHTML =
+      '<div><label>Rótulo / Entre rótulos</label><input type="text" class="medicion-rotulo"></div>' +
+      '<div><label>Medición</label><input type="text" class="medicion-valor"></div>' +
+      '<div><label>Color Crucetilla</label><input type="text" class="medicion-color"></div>' +
+      '<button type="button" class="btn-quitar-medicion" onclick="this.closest(\'.fila-medicion\').remove()">Quitar</button>';
+    document.getElementById('contenedorMediciones').appendChild(div);
+  }
+
+  function recolectarMediciones(){
+    const filas = Array.from(document.querySelectorAll('#contenedorMediciones .fila-medicion'));
+    const lineas = [];
+    filas.forEach(fila => {
+      const rotulo = fila.querySelector('.medicion-rotulo').value.trim();
+      const valor = fila.querySelector('.medicion-valor').value.trim();
+      const color = fila.querySelector('.medicion-color').value.trim();
+      if (!rotulo && !valor && !color) return; // omite filas completamente vacías
+      lineas.push(`${lineas.length + 1}) Rótulo / Entre rótulos: ${rotulo || '—'} | Medición: ${valor || '—'} | Color Crucetilla: ${color || '—'}`);
+    });
+    return lineas.join('\n');
+  }
+
+  function agregarFilaDesgloseNis(){
+    const div = document.createElement('div');
+    div.className = 'fila-nis';
+    div.innerHTML =
+      '<div><label>Fecha</label><input type="text" class="nis-fecha" placeholder="Ej: 28-08-2026"></div>' +
+      '<div><label>Nº Poste</label><input type="text" class="nis-poste"></div>' +
+      '<div><label>NIS / Medidor</label><input type="text" class="nis-medidor"></div>' +
+      '<div><label>Circuito SED</label><input type="text" class="nis-circuito"></div>' +
+      '<div><label>Dirección</label><input type="text" class="nis-direccion"></div>' +
+      '<div><label>Cambio de Fase</label><input type="text" class="nis-cambiofase" placeholder="Ej: B hacia C"></div>' +
+      '<button type="button" class="btn-quitar-nis" onclick="this.closest(\'.fila-nis\').remove()">Quitar</button>';
+    document.getElementById('contenedorDesgloseNis').appendChild(div);
+  }
+
+  function recolectarDesgloseNis(){
+    const filas = Array.from(document.querySelectorAll('#contenedorDesgloseNis .fila-nis'));
+    const lineas = [];
+    filas.forEach(fila => {
+      const fecha = fila.querySelector('.nis-fecha').value.trim();
+      const poste = fila.querySelector('.nis-poste').value.trim();
+      const medidor = fila.querySelector('.nis-medidor').value.trim();
+      const circuito = fila.querySelector('.nis-circuito').value.trim();
+      const direccion = fila.querySelector('.nis-direccion').value.trim();
+      const cambioFase = fila.querySelector('.nis-cambiofase').value.trim();
+      if (!fecha && !poste && !medidor && !circuito && !direccion && !cambioFase) return; // omite filas completamente vacías
+      lineas.push(`${lineas.length + 1}) Fecha: ${fecha || '—'} | Nº Poste: ${poste || '—'} | NIS/Medidor: ${medidor || '—'} | Circuito SED: ${circuito || '—'} | Dirección: ${direccion || '—'} | Cambio de Fase: ${cambioFase || '—'}`);
+    });
+    return lineas.join('\n');
+  }
+
+  function recolectarMedicionesTD(){
+    // Tabla fija de 4x4 (no es de filas dinámicas): se junta en un solo bloque de texto, una línea
+    // por columna (Antes/Después x Circuito A/B), igual formato que las demás tablas de la app.
+    const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const lineas = [
+      `Antes - Circuito A: Hora ${v('tdAntesAHora') || '—'} | Fase 1: ${v('tdAntesAFase1') || '—'} | Fase 2: ${v('tdAntesAFase2') || '—'} | Fase 3: ${v('tdAntesAFase3') || '—'}`,
+      `Antes - Circuito B: Hora ${v('tdAntesBHora') || '—'} | Fase 1: ${v('tdAntesBFase1') || '—'} | Fase 2: ${v('tdAntesBFase2') || '—'} | Fase 3: ${v('tdAntesBFase3') || '—'}`,
+      `Después - Circuito A: Hora ${v('tdDespuesAHora') || '—'} | Fase 1: ${v('tdDespuesAFase1') || '—'} | Fase 2: ${v('tdDespuesAFase2') || '—'} | Fase 3: ${v('tdDespuesAFase3') || '—'}`,
+      `Después - Circuito B: Hora ${v('tdDespuesBHora') || '—'} | Fase 1: ${v('tdDespuesBFase1') || '—'} | Fase 2: ${v('tdDespuesBFase2') || '—'} | Fase 3: ${v('tdDespuesBFase3') || '—'}`,
+    ];
+    return lineas.join('\n');
+  }
+
+  // ---- "Mediciones — Antes/Después" de "Refuerzos y Verificación de puentes BT": 2 tablas de filas
+  // dinámicas (una por rótulo cada una), con las mismas 8 columnas. Se comparte la lógica de
+  // agregar/recolectar fila pasando el id del contenedor, para no duplicar el código entre ambas.
+  function agregarFilaMedicionRotulo(idContenedor){
+    const div = document.createElement('div');
+    div.className = 'fila-medicion-rotulo';
+    div.innerHTML =
+      '<div><label>Rótulo</label><input type="text" class="mr-rotulo"></div>' +
+      '<div><label>Hora</label><input type="text" class="mr-hora"></div>' +
+      '<div><label>Fase 1-N</label><input type="text" class="mr-fase1n"></div>' +
+      '<div><label>Fase 2-N</label><input type="text" class="mr-fase2n"></div>' +
+      '<div><label>Fase 3-N</label><input type="text" class="mr-fase3n"></div>' +
+      '<div><label>Fase 1-Fase 2</label><input type="text" class="mr-fase1fase2"></div>' +
+      '<div><label>Fase 1-Fase 3</label><input type="text" class="mr-fase1fase3"></div>' +
+      '<div><label>Fase 2-Fase 3</label><input type="text" class="mr-fase2fase3"></div>' +
+      '<button type="button" class="btn-quitar-medicion-rotulo" onclick="this.closest(\'.fila-medicion-rotulo\').remove()">Quitar</button>';
+    document.getElementById(idContenedor).appendChild(div);
+  }
+
+  function recolectarMedicionesRotulo(idContenedor){
+    const filas = Array.from(document.querySelectorAll(`#${idContenedor} .fila-medicion-rotulo`));
+    const lineas = [];
+    filas.forEach(fila => {
+      const rotulo = fila.querySelector('.mr-rotulo').value.trim();
+      const hora = fila.querySelector('.mr-hora').value.trim();
+      const f1n = fila.querySelector('.mr-fase1n').value.trim();
+      const f2n = fila.querySelector('.mr-fase2n').value.trim();
+      const f3n = fila.querySelector('.mr-fase3n').value.trim();
+      const f1f2 = fila.querySelector('.mr-fase1fase2').value.trim();
+      const f1f3 = fila.querySelector('.mr-fase1fase3').value.trim();
+      const f2f3 = fila.querySelector('.mr-fase2fase3').value.trim();
+      if (!rotulo && !hora && !f1n && !f2n && !f3n && !f1f2 && !f1f3 && !f2f3) return; // omite filas completamente vacías
+      lineas.push(`${lineas.length + 1}) Rótulo: ${rotulo || '—'} | Hora: ${hora || '—'} | Fase 1-N: ${f1n || '—'} | Fase 2-N: ${f2n || '—'} | Fase 3-N: ${f3n || '—'} | Fase 1-Fase 2: ${f1f2 || '—'} | Fase 1-Fase 3: ${f1f3 || '—'} | Fase 2-Fase 3: ${f2f3 || '—'}`);
+    });
+    return lineas.join('\n');
+  }
+
+  function agregarFilaMedicionAntes(){ agregarFilaMedicionRotulo('contenedorMedicionesAntes'); }
+  function agregarFilaMedicionDespues(){ agregarFilaMedicionRotulo('contenedorMedicionesDespues'); }
+  function recolectarMedicionesAntes(){ return recolectarMedicionesRotulo('contenedorMedicionesAntes'); }
+  function recolectarMedicionesDespues(){ return recolectarMedicionesRotulo('contenedorMedicionesDespues'); }
 
   function poblarResponsableAutogestion(){
     // Usa la 4ª columna de la hoja de Google Sheets (independiente de técnicos/despachadores/tipos
@@ -924,8 +1256,16 @@
     ['identificador', 'Identificador'], ['tipoIngreso', 'Tipo de ingreso'], ['estado', 'Estado'], ['zona', 'Zona'], ['areaSolicitante', 'Área solicitante'],
     ['producto', 'Producto'], ['ubicacionGeografica', 'Ubicación geográfica'], ['detalleDireccion', 'Detalle dirección'], ['comuna', 'Comuna'],
     ['nombreSuscriptor', 'Nombre suscriptor'], ['apellidoSuscriptor', 'Apellido suscriptor'], ['telefonoCliente', 'Teléfono cliente'],
-    ['responsable', 'Responsable'], ['tipoActividad', 'Tipo de actividad'], ['omAviso', 'OM / Aviso'], ['claseActividad', 'Clase de Actividad'],
-    ['ubicacionTecnica', 'Ubicación técnica'], ['alimentador', 'Alimentador'], ['equipoReferencia', 'Equipo referencia'], ['rotuloReferencia', 'Rótulo referencia'],
+    ['responsable', 'Responsable'], ['solicitante', 'Solicitante'], ['empresa', 'Empresa'], ['area', 'Área'], ['tipoActividad', 'Tipo de actividad'], ['omAviso', 'OM / Aviso'], ['claseActividad', 'Clase de Actividad'],
+    ['ubicacionTecnica', 'Ubicación Técnica'], ['contacto', 'Contacto'], ['alimentador', 'Alimentador'], ['sed', 'Sed / Equipo'], ['equipoReferencia', 'Equipo referencia'], ['rotuloReferencia', 'Rótulo referencia'],
+    ['fechaInspeccion', 'Fecha de Inspección'], ['detalleHallazgos', 'Detalle de Hallazgos'],
+    ['fechaEjecucion', 'Fecha de ejecución'], ['fechaInstalacion', 'Fecha de Instalación'], ['horaInstalacion', 'Hora de Instalación'],
+    ['detalleSeparadoresBT', 'Detalle separadores BT'], ['resumenSeparadoresBT', 'Resumen de separadores BT'],
+    ['numeroClienteRotuloPoste', 'Número de cliente / Rótulo de poste'], ['equipoSonelInstalado', 'Equipo Sonel instalado'],
+    ['detalleMedicionesAltura', 'Detalle Trabajo ejecutado'],
+    ['permisoPreventivo', 'Permiso Preventivo'],
+    ['detalleMedicionesTD', 'Mediciones TD'], ['detalleEjecutado', 'Detalle Ejecutado'], ['desgloseNisMedidor', 'Desglose por NIS/medidor'],
+    ['detalleMedicionesAntes', 'Mediciones — Antes'], ['detalleMedicionesDespues', 'Mediciones — Después'],
     ['puntoElectrico', 'Punto eléctrico'],
     ['fechaIngreso', 'Fecha de ingreso'], ['fechaMaxRespuesta', 'Fecha máx. respuesta'], ['prioridad', 'Prioridad'],
     ['gestionDespacho', 'Gestión despacho'], ['trabajoARealizarSAT', 'Trabajo a realizar SAT'], ['trabajos', 'Trabajos'], ['comentario', 'Comentario'],
@@ -981,12 +1321,22 @@
     const tipo = item.tipoIngreso || 'Presentación';
     const esAutogestion = tipo === 'Autogestión';
 
+    // Desde el rediseño de creación unificada, "Área", "Sed / Equipo" y "Fecha de ejecución" se piden
+    // igual en las 6 plantillas de Autogestión. "Empresa" y "Permiso Preventivo" se retiraron del
+    // formulario de creación (ya no se piden para ninguna plantilla).
     const filasDetalle = esAutogestion ? [
-      ['Zona', item.zona], ['Comuna', item.comuna], ['Ingeniero de mantenimiento', item.responsable], ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
-      ['Clase de Actividad', item.claseActividad], ['Ubicación técnica', item.ubicacionTecnica],
-      ['Alimentador', item.alimentador], ['Equipo referencia', item.equipoReferencia],
-      ['Rótulo referencia', item.rotuloReferencia], ['Fecha de ingreso', item.fechaIngreso],
-      ['Trabajos', item.trabajos], ['Comentario', item.comentario]
+      ['Zona', item.zona], ['Comuna', item.comuna], ['Ingeniero de mantenimiento', item.responsable],
+      ['Solicitante', item.solicitante],
+      ['Área', item.area],
+      ['Tipo de actividad', item.tipoActividad], ['OM / Aviso', item.omAviso],
+      ['Ubicación Técnica', item.ubicacionTecnica],
+      ['Alimentador', item.alimentador],
+      ['Sed / Equipo', item.sed],
+      ['Contacto', item.contacto],
+      ['Fecha de ejecución', item.fechaEjecucion],
+      ['Fecha de ingreso', item.fechaIngreso],
+      ['Detalle trabajos solicitado', item.trabajos],
+      ['Comentario', item.comentario]
     ] : [
       ['Zona', item.zona], ['Área solicitante', item.areaSolicitante], ['Producto', item.producto],
       ['Ubicación geográfica', item.ubicacionGeografica], ['Detalle dirección', item.detalleDireccion], ['Comuna', item.comuna],
@@ -1008,6 +1358,37 @@
       ];
       if (esAutogestion){
         filasCierre.push(['Permiso utilizado (PT/PP/PE)', item.permisoUtilizado]);
+      }
+      if (esAutogestion && item.tipoActividad === 'Inspecciones Visuales'){
+        filasCierre.push(['Detalle de Hallazgos', item.detalleHallazgos ? String(item.detalleHallazgos).replace(/\n/g, '<br>') : '']);
+      }
+      if (esAutogestion && item.tipoActividad === 'Instalación de separadores BT'){
+        filasCierre.push(['Fecha de Instalación', item.fechaInstalacion]);
+        filasCierre.push(['Hora de Instalación', item.horaInstalacion]);
+        filasCierre.push(['Detalle separadores BT', item.detalleSeparadoresBT ? String(item.detalleSeparadoresBT).replace(/\n/g, '<br>') : '']);
+        filasCierre.push(['Resumen de separadores BT', item.resumenSeparadoresBT]);
+      }
+      if (esAutogestion && item.tipoActividad === 'Mediciones de altura'){
+        filasCierre.push(['Detalle Trabajo ejecutado', item.detalleMedicionesAltura ? String(item.detalleMedicionesAltura).replace(/\n/g, '<br>') : '']);
+      }
+      if (esAutogestion && item.tipoActividad === 'Instalación-Retiro de Sonel'){
+        filasCierre.push(['Número de cliente / Rótulo de poste', item.numeroClienteRotuloPoste]);
+        filasCierre.push(['Equipo Sonel instalado', item.equipoSonelInstalado]);
+        filasCierre.push(['Fecha de Instalación', item.fechaInstalacion]);
+        filasCierre.push(['Hora de Instalación', item.horaInstalacion]);
+      }
+      if (esAutogestion && item.tipoActividad === 'Equilibrios de carga'){
+        filasCierre.push(['Mediciones TD', item.detalleMedicionesTD ? String(item.detalleMedicionesTD).replace(/\n/g, '<br>') : '']);
+      }
+      if (esAutogestion && item.tipoActividad === 'Refuerzos y Verificación de puentes BT'){
+        filasCierre.push(['Mediciones — Antes', item.detalleMedicionesAntes ? String(item.detalleMedicionesAntes).replace(/\n/g, '<br>') : '']);
+        filasCierre.push(['Mediciones — Después', item.detalleMedicionesDespues ? String(item.detalleMedicionesDespues).replace(/\n/g, '<br>') : '']);
+      }
+      if (esAutogestion && (item.tipoActividad === 'Equilibrios de carga' || item.tipoActividad === 'Refuerzos y Verificación de puentes BT')){
+        filasCierre.push(['Detalle Ejecutado', item.detalleEjecutado]);
+      }
+      if (esAutogestion && item.tipoActividad === 'Equilibrios de carga'){
+        filasCierre.push(['Desglose por NIS/medidor', item.desgloseNisMedidor ? String(item.desgloseNisMedidor).replace(/\n/g, '<br>') : '']);
       }
       filasCierre.push(['Observaciones', item.observaciones]);
       if (item.comentarioAtencion){
@@ -1448,6 +1829,100 @@
       if (campo) campo.required = esAutogestionCierre;
     });
 
+    // Bloques propios de cada plantilla que antes se pedían en la creación y ahora se piden al
+    // cerrar (son evidencia del trabajo ejecutado, no información que el ingeniero conozca de
+    // antemano): Hallazgos (Inspecciones Visuales), Separadores BT, Mediciones de altura, y
+    // Número de cliente/Rótulo de poste + Equipo Sonel instalado (Instalación-Retiro de Sonel).
+    const esInspeccionVisualCierre = tipoActividadActual === 'Inspecciones Visuales';
+    document.querySelectorAll('#formCierre .solo-inspeccionvisual-cierre').forEach(el => {
+      el.style.display = esInspeccionVisualCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esInspeccionVisualCierre;
+    });
+    if (esInspeccionVisualCierre){
+      if (document.getElementById('contenedorHallazgos').children.length === 0) agregarFilaHallazgo();
+    } else {
+      document.getElementById('contenedorHallazgos').innerHTML = '';
+    }
+
+    const esSepBTCierre = tipoActividadActual === 'Instalación de separadores BT';
+    document.querySelectorAll('#formCierre .solo-sepbt-cierre').forEach(el => {
+      el.style.display = esSepBTCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esSepBTCierre;
+    });
+    if (esSepBTCierre){
+      if (document.getElementById('contenedorSeparadores').children.length === 0) agregarFilaSeparador();
+      actualizarResumenSeparadoresTexto();
+    } else {
+      document.getElementById('contenedorSeparadores').innerHTML = '';
+      document.getElementById('resumenSeparadoresTexto').textContent = '';
+    }
+
+    const esMedicionAlturaCierre = tipoActividadActual === 'Mediciones de altura';
+    document.querySelectorAll('#formCierre .solo-medicionaltura-cierre').forEach(el => {
+      el.style.display = esMedicionAlturaCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esMedicionAlturaCierre;
+    });
+    if (esMedicionAlturaCierre){
+      if (document.getElementById('contenedorMediciones').children.length === 0) agregarFilaMedicion();
+    } else {
+      document.getElementById('contenedorMediciones').innerHTML = '';
+    }
+
+    const esRetiroSonelCierre = tipoActividadActual === 'Instalación-Retiro de Sonel';
+    document.querySelectorAll('#formCierre .solo-retirosonel-cierre').forEach(el => {
+      el.style.display = esRetiroSonelCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esRetiroSonelCierre;
+    });
+
+    // "Fecha de Instalación" y "Hora de Instalación": compartidos entre "Instalación de separadores BT"
+    // e "Instalación-Retiro de Sonel" (evidencia del trabajo ejecutado, se piden al cerrar).
+    const esFechaInstalacionCierre = esSepBTCierre || esRetiroSonelCierre;
+    document.querySelectorAll('#formCierre .solo-fechainstalacion-cierre').forEach(el => {
+      el.style.display = esFechaInstalacionCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esFechaInstalacionCierre;
+    });
+
+    // "Mediciones TD" y "Desglose por NIS/medidor" solo se piden al cerrar una Autogestión de tipo
+    // "Equilibrios de carga"; "Mediciones — Antes/Después" solo al cerrar "Refuerzos y Verificación de
+    // puentes BT"; y "Detalle Ejecutado" es compartido entre ambas (son evidencia del trabajo
+    // ejecutado, por eso van en el cierre y no en la creación). Se usa querySelectorAll (no
+    // querySelector) porque varios de estos bloques tienen más de un input dentro de un solo "campo".
+    const esEquilibriosCierre = tipoActividadActual === 'Equilibrios de carga';
+    const esRefuerzosCierre = tipoActividadActual === 'Refuerzos y Verificación de puentes BT';
+    const esDetalleEjecutadoCierre = esEquilibriosCierre || esRefuerzosCierre;
+
+    document.querySelectorAll('#formCierre .solo-equilibrios-cierre').forEach(el => {
+      el.style.display = esEquilibriosCierre ? 'flex' : 'none';
+      el.querySelectorAll('input, select, textarea').forEach(campo => { campo.required = esEquilibriosCierre; });
+    });
+    if (esEquilibriosCierre){
+      if (document.getElementById('contenedorDesgloseNis').children.length === 0) agregarFilaDesgloseNis();
+    } else {
+      document.getElementById('contenedorDesgloseNis').innerHTML = '';
+    }
+
+    document.querySelectorAll('#formCierre .solo-refuerzos-cierre').forEach(el => {
+      el.style.display = esRefuerzosCierre ? 'flex' : 'none';
+      el.querySelectorAll('input, select, textarea').forEach(campo => { campo.required = esRefuerzosCierre; });
+    });
+    if (esRefuerzosCierre){
+      if (document.getElementById('contenedorMedicionesAntes').children.length === 0) agregarFilaMedicionAntes();
+      if (document.getElementById('contenedorMedicionesDespues').children.length === 0) agregarFilaMedicionDespues();
+    } else {
+      document.getElementById('contenedorMedicionesAntes').innerHTML = '';
+      document.getElementById('contenedorMedicionesDespues').innerHTML = '';
+    }
+
+    document.querySelectorAll('#formCierre .solo-detalleejecutado-cierre').forEach(el => {
+      el.style.display = esDetalleEjecutadoCierre ? 'flex' : 'none';
+      el.querySelectorAll('input, select, textarea').forEach(campo => { campo.required = esDetalleEjecutadoCierre; });
+    });
+
     const bloqueHistorial = document.getElementById('bloqueHistorialAtencion');
     if (!esAtencion && historialAtencionActual){
       bloqueHistorial.style.display = '';
@@ -1471,6 +1946,7 @@
     identificadorActual = (item && item.identificador) ? item.identificador : '';
     tipoIngresoActual = (item && item.tipoIngreso) ? item.tipoIngreso : 'Presentación';
     zonaActual = (item && item.zona) ? item.zona : '';
+    tipoActividadActual = (item && item.tipoActividad) ? item.tipoActividad : '';
     document.getElementById('tituloModalCierre').textContent = (tipoIngresoActual === 'Autogestión') ? 'Cerrar autogestión' : 'Cerrar presentación';
     document.getElementById('formCierre').reset();
     document.getElementById('inputClave').type = 'password';
@@ -1490,6 +1966,7 @@
     identificadorActual = '';
     tipoIngresoActual = '';
     zonaActual = '';
+    tipoActividadActual = '';
   }
 
   function alternarClave(){
@@ -1533,6 +2010,89 @@
     datos.probatorias = form.elements['probatorias'].value;
     // Solo se pide (y se ve) en el cierre de una Autogestión; en Presentación queda como texto vacío.
     datos.permisoUtilizado = form.elements['permisoUtilizado'].value;
+
+    // ---- Campos propios de "Inspecciones Visuales": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Inspecciones Visuales'){
+      datos.detalleHallazgos = recolectarHallazgos();
+      if (!datos.detalleHallazgos){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un hallazgo antes de cerrar.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Instalación de separadores BT": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Instalación de separadores BT'){
+      const { detalle, total } = recolectarSeparadores();
+      datos.detalleSeparadoresBT = detalle;
+      datos.resumenSeparadoresBT = total;
+      if (!datos.detalleSeparadoresBT){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un separador antes de cerrar.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Mediciones de altura": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Mediciones de altura'){
+      datos.detalleMedicionesAltura = recolectarMediciones();
+      if (!datos.detalleMedicionesAltura){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos una medición antes de cerrar.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Instalación-Retiro de Sonel": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Instalación-Retiro de Sonel'){
+      datos.numeroClienteRotuloPoste = form.elements['numeroClienteRotuloPoste'].value.trim();
+      datos.equipoSonelInstalado = form.elements['equipoSonelInstalado'].value.trim();
+      if (!datos.numeroClienteRotuloPoste || !datos.equipoSonelInstalado){
+        mostrarMensaje('mensajeCierre', 'Debes ingresar el Número de cliente / Rótulo de poste y el Equipo Sonel instalado.', 'error');
+        return false;
+      }
+    }
+
+    // ---- "Fecha de Instalación" y "Hora de Instalación": compartidos entre "Instalación de separadores BT"
+    // e "Instalación-Retiro de Sonel" (evidencia del trabajo ejecutado, se piden solo al cerrar) ----
+    if (tipoActividadActual === 'Instalación de separadores BT' || tipoActividadActual === 'Instalación-Retiro de Sonel'){
+      datos.fechaInstalacion = form.elements['fechaInstalacion'].value;
+      datos.horaInstalacion = form.elements['horaInstalacion'].value.trim();
+      if (!datos.fechaInstalacion || !datos.horaInstalacion){
+        mostrarMensaje('mensajeCierre', 'Debes ingresar la Fecha de Instalación y la Hora de Instalación.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Equilibrios de carga": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Equilibrios de carga'){
+      datos.detalleMedicionesTD = recolectarMedicionesTD();
+      datos.desgloseNisMedidor = recolectarDesgloseNis();
+      if (!datos.desgloseNisMedidor){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un registro en el Desglose por NIS/medidor.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Refuerzos y Verificación de puentes BT": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Refuerzos y Verificación de puentes BT'){
+      datos.detalleMedicionesAntes = recolectarMedicionesAntes();
+      datos.detalleMedicionesDespues = recolectarMedicionesDespues();
+      if (!datos.detalleMedicionesAntes){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un rótulo en "Mediciones — Antes".', 'error');
+        return false;
+      }
+      if (!datos.detalleMedicionesDespues){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un rótulo en "Mediciones — Después".', 'error');
+        return false;
+      }
+    }
+
+    // ---- "Detalle Ejecutado": compartido entre "Equilibrios de carga" y "Refuerzos y Verificación de puentes BT" ----
+    if (tipoActividadActual === 'Equilibrios de carga' || tipoActividadActual === 'Refuerzos y Verificación de puentes BT'){
+      datos.detalleEjecutado = form.elements['detalleEjecutado'].value.trim();
+      if (!datos.detalleEjecutado){
+        mostrarMensaje('mensajeCierre', 'Debes ingresar el Detalle Ejecutado.', 'error');
+        return false;
+      }
+    }
 
     // ---- Lo único distinto entre los dos estados es el comentario ----
     if (esAtencion){
