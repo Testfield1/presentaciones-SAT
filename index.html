@@ -200,6 +200,7 @@
   .solo-medicionaltura-cierre{display:none;}
   .solo-retirosonel-cierre{display:none;}
   .solo-fechainstalacion-cierre{display:none;}
+  .solo-retiroobjetos-cierre{display:none;}
   [data-tipos]{display:none;}
   .fila-hallazgo{
     display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:8px; align-items:end;
@@ -217,6 +218,14 @@
   .fila-separador input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
   .fila-separador .btn-quitar-separador{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap;}
   @media (max-width:700px){ .fila-separador{grid-template-columns:1fr 1fr;} }
+  .fila-objeto{
+    display:grid; grid-template-columns:2fr 1fr auto; gap:8px; align-items:end;
+    padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
+  }
+  .fila-objeto label{font-size:11px; font-weight:600; color:var(--gris-oscuro); display:block; margin-bottom:3px;}
+  .fila-objeto input{width:100%; border:1px solid var(--gris-claro); border-radius:6px; padding:7px 8px; font-size:13px; font-family:inherit;}
+  .fila-objeto .btn-quitar-objeto{background:none; border:1px solid var(--rojo); color:var(--rojo); border-radius:6px; padding:7px 10px; font-size:12px; cursor:pointer; white-space:nowrap;}
+  @media (max-width:700px){ .fila-objeto{grid-template-columns:1fr 1fr;} }
   .fila-medicion{
     display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; align-items:end;
     padding:10px; border:1px solid var(--gris-claro); border-radius:7px; margin-bottom:8px; background:#fafafa;
@@ -388,6 +397,7 @@
               <option value="Mediciones de altura">Mediciones de altura</option>
               <option value="Equilibrios de carga">Equilibrios de carga</option>
               <option value="Refuerzos y Verificación de puentes BT">Refuerzos y Verificación de puentes BT</option>
+              <option value="Retiro de objetos">Retiro de objetos</option>
             </select>
           </div>
           <div class="campo solo-autogestion">
@@ -610,6 +620,11 @@
           <label>Detalle Trabajo ejecutado <span class="req">*</span></label>
           <div id="contenedorMediciones"></div>
           <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaMedicion()">+ Agregar medición</button>
+        </div>
+        <div class="campo full solo-retiroobjetos-cierre">
+          <label>Detalle de objetos retirados <span class="req">*</span></label>
+          <div id="contenedorObjetos"></div>
+          <button type="button" class="btn btn-secundario" style="margin-top:6px;" onclick="agregarFilaObjeto()">+ Agregar objeto</button>
         </div>
         <div class="campo solo-retirosonel-cierre">
           <label>Número de cliente / Rótulo de poste <span class="req">*</span></label>
@@ -1005,6 +1020,29 @@
     return lineas.join('\n');
   }
 
+  function agregarFilaObjeto(){
+    const div = document.createElement('div');
+    div.className = 'fila-objeto';
+    div.innerHTML =
+      '<div><label>Descripción</label><input type="text" class="objeto-descripcion" placeholder="Ej: Medidor retirado"></div>' +
+      '<div><label>Cantidad</label><input type="number" min="0" step="1" class="objeto-cantidad"></div>' +
+      '<button type="button" class="btn-quitar-objeto" onclick="this.closest(\'.fila-objeto\').remove()">Quitar</button>';
+    document.getElementById('contenedorObjetos').appendChild(div);
+  }
+
+  function recolectarObjetos(){
+    const filas = Array.from(document.querySelectorAll('#contenedorObjetos .fila-objeto'));
+    const lineas = [];
+    filas.forEach(fila => {
+      const descripcion = fila.querySelector('.objeto-descripcion').value.trim();
+      const cantidadTexto = fila.querySelector('.objeto-cantidad').value.trim();
+      const cantidad = parseInt(cantidadTexto, 10);
+      if (!descripcion && !cantidadTexto) return; // omite filas completamente vacías
+      lineas.push(`${lineas.length + 1}) Descripción: ${descripcion || '—'} | Cantidad: ${isNaN(cantidad) ? '—' : cantidad}`);
+    });
+    return lineas.join('\n');
+  }
+
   function agregarFilaDesgloseNis(){
     const div = document.createElement('div');
     div.className = 'fila-nis';
@@ -1289,6 +1327,7 @@
     ['detalleSeparadoresBT', 'Detalle separadores BT'], ['resumenSeparadoresBT', 'Resumen de separadores BT'],
     ['numeroClienteRotuloPoste', 'Número de cliente / Rótulo de poste'], ['equipoSonelInstalado', 'Equipo Sonel instalado'],
     ['detalleMedicionesAltura', 'Detalle Trabajo ejecutado'],
+    ['detalleObjetosRetirados', 'Detalle de objetos retirados'],
     ['permisoPreventivo', 'Permiso Preventivo'],
     ['detalleMedicionesTD', 'Mediciones TD'], ['detalleEjecutado', 'Detalle Ejecutado'], ['desgloseNisMedidor', 'Desglose por NIS/medidor'],
     ['detalleMedicionesAntes', 'Mediciones — Antes'], ['detalleMedicionesDespues', 'Mediciones — Después'],
@@ -1395,6 +1434,9 @@
       }
       if (esAutogestion && item.tipoActividad === 'Mediciones de altura'){
         filasCierre.push(['Detalle Trabajo ejecutado', item.detalleMedicionesAltura ? String(item.detalleMedicionesAltura).replace(/\n/g, '<br>') : '']);
+      }
+      if (esAutogestion && item.tipoActividad === 'Retiro de objetos'){
+        filasCierre.push(['Detalle de objetos retirados', item.detalleObjetosRetirados ? String(item.detalleObjetosRetirados).replace(/\n/g, '<br>') : '']);
       }
       if (esAutogestion && item.tipoActividad === 'Instalación-Retiro de Sonel'){
         filasCierre.push(['Número de cliente / Rótulo de poste', item.numeroClienteRotuloPoste]);
@@ -1856,8 +1898,9 @@
 
     // Bloques propios de cada plantilla que antes se pedían en la creación y ahora se piden al
     // cerrar (son evidencia del trabajo ejecutado, no información que el ingeniero conozca de
-    // antemano): Hallazgos (Inspecciones Visuales), Separadores BT, Mediciones de altura, y
-    // Número de cliente/Rótulo de poste + Equipo Sonel instalado (Instalación-Retiro de Sonel).
+    // antemano): Hallazgos (Inspecciones Visuales), Separadores BT, Mediciones de altura,
+    // Objetos retirados (Retiro de objetos), y Número de cliente/Rótulo de poste + Equipo Sonel
+    // instalado (Instalación-Retiro de Sonel).
     const esInspeccionVisualCierre = tipoActividadActual === 'Inspecciones Visuales';
     document.querySelectorAll('#formCierre .solo-inspeccionvisual-cierre').forEach(el => {
       el.style.display = esInspeccionVisualCierre ? 'flex' : 'none';
@@ -1894,6 +1937,18 @@
       if (document.getElementById('contenedorMediciones').children.length === 0) agregarFilaMedicion();
     } else {
       document.getElementById('contenedorMediciones').innerHTML = '';
+    }
+
+    const esRetiroObjetosCierre = tipoActividadActual === 'Retiro de objetos';
+    document.querySelectorAll('#formCierre .solo-retiroobjetos-cierre').forEach(el => {
+      el.style.display = esRetiroObjetosCierre ? 'flex' : 'none';
+      const campo = el.querySelector('input, select, textarea');
+      if (campo) campo.required = esRetiroObjetosCierre;
+    });
+    if (esRetiroObjetosCierre){
+      if (document.getElementById('contenedorObjetos').children.length === 0) agregarFilaObjeto();
+    } else {
+      document.getElementById('contenedorObjetos').innerHTML = '';
     }
 
     const esRetiroSonelCierre = tipoActividadActual === 'Instalación-Retiro de Sonel';
@@ -2103,6 +2158,15 @@
       datos.detalleMedicionesAltura = recolectarMediciones();
       if (!datos.detalleMedicionesAltura){
         mostrarMensaje('mensajeCierre', 'Agrega al menos una medición antes de cerrar.', 'error');
+        return false;
+      }
+    }
+
+    // ---- Campos propios de "Retiro de objetos": evidencia del trabajo ejecutado, se piden solo al cerrar este tipo de actividad ----
+    if (tipoActividadActual === 'Retiro de objetos'){
+      datos.detalleObjetosRetirados = recolectarObjetos();
+      if (!datos.detalleObjetosRetirados){
+        mostrarMensaje('mensajeCierre', 'Agrega al menos un objeto antes de cerrar.', 'error');
         return false;
       }
     }
